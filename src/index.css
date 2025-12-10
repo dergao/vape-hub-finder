@@ -4,88 +4,92 @@
 
 @layer base {
   :root {
-    --background: 222 47% 6%;
-    --foreground: 210 40% 98%;
-
-    --card: 222 47% 8%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222 47% 8%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 187 94% 43%;
-    --primary-foreground: 222 47% 6%;
-
-    --secondary: 222 47% 12%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 222 47% 15%;
-    --muted-foreground: 215 20% 55%;
-
-    --accent: 187 94% 43%;
-    --accent-foreground: 222 47% 6%;
-
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 222 47% 18%;
-    --input: 222 47% 15%;
-    --ring: 187 94% 43%;
-
-    --radius: 0.75rem;
-
-    /* Custom tokens */
-    --glow-primary: 0 0 30px hsl(187 94% 43% / 0.3);
-    --glow-soft: 0 0 60px hsl(187 94% 43% / 0.15);
-    --gradient-hero: linear-gradient(135deg, hsl(222 47% 8%) 0%, hsl(222 47% 4%) 100%);
-    --gradient-card: linear-gradient(180deg, hsl(222 47% 10%) 0%, hsl(222 47% 8%) 100%);
-    --gradient-accent: linear-gradient(135deg, hsl(187 94% 43%) 0%, hsl(199 89% 48%) 100%);
-    --glass-bg: hsl(222 47% 10% / 0.8);
-    --glass-border: hsl(222 47% 20% / 0.5);
-
-    /* Rating colors */
-    --rating-star: 45 93% 58%;
-    --status-open: 142 76% 36%;
-    --status-closed: 0 84% 60%;
-
-    --sidebar-background: 222 47% 6%;
-    --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 187 94% 43%;
-    --sidebar-primary-foreground: 222 47% 6%;
-    --sidebar-accent: 222 47% 12%;
-    --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-border: 222 47% 18%;
-    --sidebar-ring: 187 94% 43%;
-  }
-
-  .light {
-    --background: 0 0% 100%;
-    --foreground: 222 47% 11%;
+    /* Yelp-inspired color scheme */
+    --background: 0 0% 98%;
+    --foreground: 0 0% 13%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
+    --card-foreground: 0 0% 13%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
+    --popover-foreground: 0 0% 13%;
 
-    --primary: 187 94% 38%;
+    --primary: 0 100% 42%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222 47% 11%;
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 13%;
 
-    --muted: 210 40% 96%;
-    --muted-foreground: 215 16% 47%;
+    --muted: 0 0% 92%;
+    --muted-foreground: 0 0% 45%;
 
-    --accent: 210 40% 96%;
-    --accent-foreground: 222 47% 11%;
+    --accent: 0 0% 96%;
+    --accent-foreground: 0 0% 13%;
 
     --destructive: 0 84% 60%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 214 32% 91%;
-    --input: 214 32% 91%;
-    --ring: 187 94% 38%;
+    --border: 0 0% 88%;
+    --input: 0 0% 88%;
+    --ring: 0 100% 42%;
+
+    --radius: 0.5rem;
+
+    /* Custom tokens */
+    --glow-primary: 0 4px 12px hsl(0 100% 42% / 0.15);
+    --glow-soft: 0 2px 8px hsl(0 0% 0% / 0.08);
+    --gradient-hero: linear-gradient(180deg, hsl(0 0% 98%) 0%, hsl(0 0% 94%) 100%);
+    --gradient-card: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(0 0% 99%) 100%);
+    --gradient-accent: linear-gradient(135deg, hsl(0 100% 42%) 0%, hsl(0 85% 50%) 100%);
+    --glass-bg: hsl(0 0% 100% / 0.95);
+    --glass-border: hsl(0 0% 88% / 0.8);
+
+    /* Rating colors */
+    --rating-star: 45 93% 47%;
+    --status-open: 142 76% 36%;
+    --status-closed: 0 0% 50%;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 0 0% 13%;
+    --sidebar-primary: 0 100% 42%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 96%;
+    --sidebar-accent-foreground: 0 0% 13%;
+    --sidebar-border: 0 0% 88%;
+    --sidebar-ring: 0 100% 42%;
+  }
+
+  .dark {
+    --background: 0 0% 7%;
+    --foreground: 0 0% 95%;
+
+    --card: 0 0% 10%;
+    --card-foreground: 0 0% 95%;
+
+    --popover: 0 0% 10%;
+    --popover-foreground: 0 0% 95%;
+
+    --primary: 0 100% 50%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 0 0% 15%;
+    --secondary-foreground: 0 0% 95%;
+
+    --muted: 0 0% 18%;
+    --muted-foreground: 0 0% 60%;
+
+    --accent: 0 0% 15%;
+    --accent-foreground: 0 0% 95%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 0 0% 20%;
+    --input: 0 0% 18%;
+    --ring: 0 100% 50%;
+
+    --glow-primary: 0 0 20px hsl(0 100% 50% / 0.25);
+    --glow-soft: 0 0 40px hsl(0 100% 50% / 0.1);
   }
 }
 

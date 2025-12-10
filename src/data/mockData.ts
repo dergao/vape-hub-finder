@@ -1,3 +1,15 @@
+export interface Review {
+  id: string;
+  userName: string;
+  userAvatar: string;
+  rating: number;
+  date: string;
+  content: string;
+  serviceRating: number;
+  inventoryRating: number;
+  pricingRating: number;
+}
+
 export interface VapeStore {
   id: string;
   slug: string;
@@ -22,8 +34,11 @@ export interface VapeStore {
   brands: string[];
   featuredProducts: string[];
   imageUrl: string;
+  photos: string[];
   description: string;
   hasCoupons: boolean;
+  isSponsored?: boolean;
+  reviews: Review[];
 }
 
 export interface City {
@@ -102,6 +117,42 @@ export const cities: City[] = [
   },
 ];
 
+const sampleReviews: Review[] = [
+  {
+    id: "r1",
+    userName: "Mike T.",
+    userAvatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&q=80",
+    rating: 5,
+    date: "2024-01-15",
+    content: "Best vape shop in LA! The staff is super knowledgeable and helped me find the perfect setup. Great selection of e-liquids too.",
+    serviceRating: 5,
+    inventoryRating: 5,
+    pricingRating: 4,
+  },
+  {
+    id: "r2",
+    userName: "Sarah L.",
+    userAvatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&q=80",
+    rating: 4,
+    date: "2024-01-10",
+    content: "Good variety of products and friendly staff. Prices are a bit higher than online but the convenience and expertise make it worth it.",
+    serviceRating: 5,
+    inventoryRating: 4,
+    pricingRating: 3,
+  },
+  {
+    id: "r3",
+    userName: "James K.",
+    userAvatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80",
+    rating: 5,
+    date: "2024-01-05",
+    content: "Amazing experience! They have all the latest devices and the tasting bar for e-liquids is fantastic. Highly recommend!",
+    serviceRating: 5,
+    inventoryRating: 5,
+    pricingRating: 5,
+  },
+];
+
 export const stores: VapeStore[] = [
   {
     id: "1",
@@ -129,8 +180,16 @@ export const stores: VapeStore[] = [
     brands: ["Juul", "Puff Bar", "Vuse", "SMOK"],
     featuredProducts: ["Juul Pods Variety", "Puff Bar Plus", "SMOK Nord 4"],
     imageUrl: "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=800&q=80",
+    photos: [
+      "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=800&q=80",
+      "https://images.unsplash.com/photo-1527529482837-4698179dc6ce?w=800&q=80",
+      "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80",
+      "https://images.unsplash.com/photo-1545558014-8692077e9b5c?w=800&q=80",
+    ],
     description: "Premier vape lounge in Hollywood offering the widest selection of e-liquids and devices in LA.",
     hasCoupons: true,
+    isSponsored: true,
+    reviews: sampleReviews,
   },
   {
     id: "2",
@@ -158,8 +217,13 @@ export const stores: VapeStore[] = [
     brands: ["NJOY", "blu", "Logic", "Vaporesso"],
     featuredProducts: ["NJOY ACE Pods", "Vaporesso XROS", "Logic Pro"],
     imageUrl: "https://images.unsplash.com/photo-1527529482837-4698179dc6ce?w=800&q=80",
+    photos: [
+      "https://images.unsplash.com/photo-1527529482837-4698179dc6ce?w=800&q=80",
+      "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=800&q=80",
+    ],
     description: "Family-owned vape shop with expert staff and competitive prices on all major brands.",
     hasCoupons: false,
+    reviews: sampleReviews.slice(0, 2),
   },
   {
     id: "3",
@@ -187,8 +251,13 @@ export const stores: VapeStore[] = [
     brands: ["GeekVape", "Voopoo", "Lost Vape", "Uwell"],
     featuredProducts: ["GeekVape Aegis", "Voopoo Drag 3", "Uwell Caliburn"],
     imageUrl: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80",
+    photos: [
+      "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80",
+      "https://images.unsplash.com/photo-1545558014-8692077e9b5c?w=800&q=80",
+    ],
     description: "Downtown LA's go-to destination for advanced vaping devices and premium e-liquids.",
     hasCoupons: true,
+    reviews: sampleReviews,
   },
   {
     id: "4",
@@ -216,8 +285,13 @@ export const stores: VapeStore[] = [
     brands: ["Juul", "SMOK", "Aspire", "Innokin"],
     featuredProducts: ["SMOK RPM 5", "Aspire Nautilus", "Innokin Kroma-R"],
     imageUrl: "https://images.unsplash.com/photo-1545558014-8692077e9b5c?w=800&q=80",
+    photos: [
+      "https://images.unsplash.com/photo-1545558014-8692077e9b5c?w=800&q=80",
+      "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800&q=80",
+    ],
     description: "Beachside vape shop with ocean views and the best selection of salt nic e-liquids.",
     hasCoupons: true,
+    reviews: sampleReviews.slice(0, 2),
   },
   {
     id: "5",
@@ -245,8 +319,14 @@ export const stores: VapeStore[] = [
     brands: ["Pax", "Firefly", "DaVinci", "Storz & Bickel"],
     featuredProducts: ["Pax Era Pro", "DaVinci IQ2", "Mighty+"],
     imageUrl: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800&q=80",
+    photos: [
+      "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800&q=80",
+      "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=800&q=80",
+      "https://images.unsplash.com/photo-1527529482837-4698179dc6ce?w=800&q=80",
+    ],
     description: "Luxury vaporizer boutique featuring premium dry herb devices and concierge service.",
     hasCoupons: false,
+    reviews: sampleReviews,
   },
 ];
 
@@ -270,7 +350,13 @@ export const brands = [
 export function getStoresByCity(citySlug: string): VapeStore[] {
   const cityName = cities.find(c => c.slug === citySlug)?.name;
   if (!cityName) return [];
-  return stores.filter(s => s.city === cityName);
+  const cityStores = stores.filter(s => s.city === cityName);
+  // Sort: sponsored first, then by rating
+  return cityStores.sort((a, b) => {
+    if (a.isSponsored && !b.isSponsored) return -1;
+    if (!a.isSponsored && b.isSponsored) return 1;
+    return b.rating - a.rating;
+  });
 }
 
 export function getStoreBySlug(citySlug: string, storeSlug: string): VapeStore | undefined {
