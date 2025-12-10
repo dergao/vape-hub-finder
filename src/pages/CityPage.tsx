@@ -69,7 +69,7 @@ const CityPage = () => {
   return (
     <>
       <Helmet>
-        <title>Vape Shops in {city.name}, {city.state} | {city.storeCount} Stores | VapeFinder</title>
+        <title>{`Vape Shops in ${city.name}, ${city.state} | ${city.storeCount} Stores | VapeFinder`}</title>
         <meta 
           name="description" 
           content={`Find the best vape shops in ${city.name}, ${city.state}. Browse ${city.storeCount} stores with reviews, hours, and inventory. ${openStoreCount} stores open now.`}
