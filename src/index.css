@@ -3,8 +3,9 @@
 @tailwind utilities;
 
 @layer base {
-  :root {
-    /* Yelp-inspired color scheme */
+  :root,
+  .light {
+    /* Yelp-inspired color scheme - LIGHT MODE */
     --background: 0 0% 98%;
     --foreground: 0 0% 13%;
 
@@ -96,6 +97,10 @@
 @layer base {
   * {
     @apply border-border;
+  }
+
+  html {
+    color-scheme: light;
   }
 
   body {
