@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
 import { 
   Table, 
   TableBody, 
@@ -20,8 +21,9 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Plus, Search, Pencil, Trash2, Star, MapPin } from "lucide-react";
-import { stores, type VapeStore } from "@/data/mockData";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Plus, Search, Pencil, Trash2, Star, MapPin, X } from "lucide-react";
+import { stores, brands as availableBrands, type VapeStore } from "@/data/mockData";
 import { useToast } from "@/hooks/use-toast";
 
 export default function AdminStores() {
@@ -74,7 +76,7 @@ export default function AdminStores() {
               添加店铺
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>{editingStore ? "编辑店铺" : "添加店铺"}</DialogTitle>
             </DialogHeader>
@@ -177,6 +179,17 @@ interface StoreFormProps {
   onCancel: () => void;
 }
 
+const dayNames = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
+const dayLabels: Record<string, string> = {
+  monday: "周一",
+  tuesday: "周二", 
+  wednesday: "周三",
+  thursday: "周四",
+  friday: "周五",
+  saturday: "周六",
+  sunday: "周日",
+};
+
 function StoreForm({ store, onSave, onCancel }: StoreFormProps) {
   const [formData, setFormData] = useState<Partial<VapeStore>>(store || {
     name: "",
@@ -189,7 +202,15 @@ function StoreForm({ store, onSave, onCancel }: StoreFormProps) {
     reviewCount: 0,
     subRatings: { service: 0, inventory: 0, pricing: 0 },
     isOpen: true,
-    hours: {},
+    hours: {
+      monday: { open: "09:00", close: "21:00" },
+      tuesday: { open: "09:00", close: "21:00" },
+      wednesday: { open: "09:00", close: "21:00" },
+      thursday: { open: "09:00", close: "21:00" },
+      friday: { open: "09:00", close: "22:00" },
+      saturday: { open: "10:00", close: "22:00" },
+      sunday: { open: "11:00", close: "18:00" },
+    },
     coordinates: { lat: 0, lng: 0 },
     brands: [],
     featuredProducts: [],
@@ -201,102 +222,460 @@ function StoreForm({ store, onSave, onCancel }: StoreFormProps) {
     reviews: [],
   });
 
+  const [newBrand, setNewBrand] = useState("");
+  const [newProduct, setNewProduct] = useState("");
+  const [newPhotoUrl, setNewPhotoUrl] = useState("");
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSave({
       ...formData,
       id: store?.id || "",
       slug: formData.name?.toLowerCase().replace(/\s+/g, "-") || "",
+      reviews: store?.reviews || [],
     } as VapeStore);
   };
 
+  const handleHoursChange = (day: string, field: "open" | "close", value: string) => {
+    setFormData({
+      ...formData,
+      hours: {
+        ...formData.hours,
+        [day]: formData.hours?.[day] 
+          ? { ...formData.hours[day], [field]: value }
+          : { open: "09:00", close: "21:00", [field]: value },
+      },
+    });
+  };
+
+  const toggleDayClosed = (day: string) => {
+    setFormData({
+      ...formData,
+      hours: {
+        ...formData.hours,
+        [day]: formData.hours?.[day] ? null : { open: "09:00", close: "21:00" },
+      },
+    });
+  };
+
+  const addBrand = () => {
+    if (newBrand && !formData.brands?.includes(newBrand)) {
+      setFormData({ ...formData, brands: [...(formData.brands || []), newBrand] });
+      setNewBrand("");
+    }
+  };
+
+  const removeBrand = (brand: string) => {
+    setFormData({ ...formData, brands: formData.brands?.filter(b => b !== brand) });
+  };
+
+  const addProduct = () => {
+    if (newProduct && !formData.featuredProducts?.includes(newProduct)) {
+      setFormData({ ...formData, featuredProducts: [...(formData.featuredProducts || []), newProduct] });
+      setNewProduct("");
+    }
+  };
+
+  const removeProduct = (product: string) => {
+    setFormData({ ...formData, featuredProducts: formData.featuredProducts?.filter(p => p !== product) });
+  };
+
+  const addPhoto = () => {
+    if (newPhotoUrl && !formData.photos?.includes(newPhotoUrl)) {
+      setFormData({ ...formData, photos: [...(formData.photos || []), newPhotoUrl] });
+      setNewPhotoUrl("");
+    }
+  };
+
+  const removePhoto = (photo: string) => {
+    setFormData({ ...formData, photos: formData.photos?.filter(p => p !== photo) });
+  };
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="name">店铺名称</Label>
-          <Input
-            id="name"
-            value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            required
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="phone">电话</Label>
-          <Input
-            id="phone"
-            value={formData.phone}
-            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-          />
-        </div>
-      </div>
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <Tabs defaultValue="basic" className="w-full">
+        <TabsList className="grid w-full grid-cols-5">
+          <TabsTrigger value="basic">基本信息</TabsTrigger>
+          <TabsTrigger value="ratings">评分</TabsTrigger>
+          <TabsTrigger value="hours">营业时间</TabsTrigger>
+          <TabsTrigger value="products">产品/品牌</TabsTrigger>
+          <TabsTrigger value="media">图片</TabsTrigger>
+        </TabsList>
 
-      <div className="space-y-2">
-        <Label htmlFor="address">地址</Label>
-        <Input
-          id="address"
-          value={formData.address}
-          onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-        />
-      </div>
+        {/* 基本信息 */}
+        <TabsContent value="basic" className="space-y-4 mt-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="name">店铺名称 *</Label>
+              <Input
+                id="name"
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="phone">电话</Label>
+              <Input
+                id="phone"
+                value={formData.phone}
+                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                placeholder="(xxx) xxx-xxxx"
+              />
+            </div>
+          </div>
 
-      <div className="grid grid-cols-3 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="city">城市</Label>
-          <Input
-            id="city"
-            value={formData.city}
-            onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="state">州</Label>
-          <Input
-            id="state"
-            value={formData.state}
-            onChange={(e) => setFormData({ ...formData, state: e.target.value })}
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="zipCode">邮编</Label>
-          <Input
-            id="zipCode"
-            value={formData.zipCode}
-            onChange={(e) => setFormData({ ...formData, zipCode: e.target.value })}
-          />
-        </div>
-      </div>
+          <div className="space-y-2">
+            <Label htmlFor="address">详细地址</Label>
+            <Input
+              id="address"
+              value={formData.address}
+              onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+            />
+          </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="description">描述</Label>
-        <Input
-          id="description"
-          value={formData.description}
-          onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-        />
-      </div>
+          <div className="grid grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="city">城市</Label>
+              <Input
+                id="city"
+                value={formData.city}
+                onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="state">州</Label>
+              <Input
+                id="state"
+                value={formData.state}
+                onChange={(e) => setFormData({ ...formData, state: e.target.value })}
+                placeholder="CA"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="zipCode">邮编</Label>
+              <Input
+                id="zipCode"
+                value={formData.zipCode}
+                onChange={(e) => setFormData({ ...formData, zipCode: e.target.value })}
+              />
+            </div>
+          </div>
 
-      <div className="grid grid-cols-2 gap-4">
-        <div className="flex items-center justify-between">
-          <Label htmlFor="isOpen">营业状态</Label>
-          <Switch
-            id="isOpen"
-            checked={formData.isOpen}
-            onCheckedChange={(checked) => setFormData({ ...formData, isOpen: checked })}
-          />
-        </div>
-        <div className="flex items-center justify-between">
-          <Label htmlFor="isSponsored">赞助商</Label>
-          <Switch
-            id="isSponsored"
-            checked={formData.isSponsored}
-            onCheckedChange={(checked) => setFormData({ ...formData, isSponsored: checked })}
-          />
-        </div>
-      </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="lat">纬度 (Latitude)</Label>
+              <Input
+                id="lat"
+                type="number"
+                step="0.0001"
+                value={formData.coordinates?.lat || 0}
+                onChange={(e) => setFormData({ 
+                  ...formData, 
+                  coordinates: { ...formData.coordinates!, lat: parseFloat(e.target.value) || 0 }
+                })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="lng">经度 (Longitude)</Label>
+              <Input
+                id="lng"
+                type="number"
+                step="0.0001"
+                value={formData.coordinates?.lng || 0}
+                onChange={(e) => setFormData({ 
+                  ...formData, 
+                  coordinates: { ...formData.coordinates!, lng: parseFloat(e.target.value) || 0 }
+                })}
+              />
+            </div>
+          </div>
 
-      <div className="flex justify-end gap-2 pt-4">
+          <div className="space-y-2">
+            <Label htmlFor="description">店铺描述</Label>
+            <Textarea
+              id="description"
+              value={formData.description}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              rows={3}
+              placeholder="介绍店铺的特色和服务..."
+            />
+          </div>
+
+          <div className="grid grid-cols-3 gap-4">
+            <div className="flex items-center justify-between p-3 border rounded-lg">
+              <Label htmlFor="isOpen">营业状态</Label>
+              <Switch
+                id="isOpen"
+                checked={formData.isOpen}
+                onCheckedChange={(checked) => setFormData({ ...formData, isOpen: checked })}
+              />
+            </div>
+            <div className="flex items-center justify-between p-3 border rounded-lg">
+              <Label htmlFor="isSponsored">赞助商</Label>
+              <Switch
+                id="isSponsored"
+                checked={formData.isSponsored}
+                onCheckedChange={(checked) => setFormData({ ...formData, isSponsored: checked })}
+              />
+            </div>
+            <div className="flex items-center justify-between p-3 border rounded-lg">
+              <Label htmlFor="hasCoupons">有优惠券</Label>
+              <Switch
+                id="hasCoupons"
+                checked={formData.hasCoupons}
+                onCheckedChange={(checked) => setFormData({ ...formData, hasCoupons: checked })}
+              />
+            </div>
+          </div>
+        </TabsContent>
+
+        {/* 评分 */}
+        <TabsContent value="ratings" className="space-y-4 mt-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="rating">总评分 (0-5)</Label>
+              <Input
+                id="rating"
+                type="number"
+                min="0"
+                max="5"
+                step="0.1"
+                value={formData.rating || 0}
+                onChange={(e) => setFormData({ ...formData, rating: parseFloat(e.target.value) || 0 })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="reviewCount">评价数量</Label>
+              <Input
+                id="reviewCount"
+                type="number"
+                min="0"
+                value={formData.reviewCount || 0}
+                onChange={(e) => setFormData({ ...formData, reviewCount: parseInt(e.target.value) || 0 })}
+              />
+            </div>
+          </div>
+
+          <div className="p-4 border rounded-lg space-y-4">
+            <h4 className="font-medium">子评分 (显示在店铺详情页)</h4>
+            <div className="grid grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="serviceRating">服务态度 (Service)</Label>
+                <Input
+                  id="serviceRating"
+                  type="number"
+                  min="0"
+                  max="5"
+                  step="0.1"
+                  value={formData.subRatings?.service || 0}
+                  onChange={(e) => setFormData({ 
+                    ...formData, 
+                    subRatings: { ...formData.subRatings!, service: parseFloat(e.target.value) || 0 }
+                  })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="inventoryRating">库存丰富度 (Inventory)</Label>
+                <Input
+                  id="inventoryRating"
+                  type="number"
+                  min="0"
+                  max="5"
+                  step="0.1"
+                  value={formData.subRatings?.inventory || 0}
+                  onChange={(e) => setFormData({ 
+                    ...formData, 
+                    subRatings: { ...formData.subRatings!, inventory: parseFloat(e.target.value) || 0 }
+                  })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="pricingRating">价格合理性 (Pricing)</Label>
+                <Input
+                  id="pricingRating"
+                  type="number"
+                  min="0"
+                  max="5"
+                  step="0.1"
+                  value={formData.subRatings?.pricing || 0}
+                  onChange={(e) => setFormData({ 
+                    ...formData, 
+                    subRatings: { ...formData.subRatings!, pricing: parseFloat(e.target.value) || 0 }
+                  })}
+                />
+              </div>
+            </div>
+          </div>
+        </TabsContent>
+
+        {/* 营业时间 */}
+        <TabsContent value="hours" className="space-y-4 mt-4">
+          <div className="space-y-3">
+            {dayNames.map(day => (
+              <div key={day} className="flex items-center gap-4 p-3 border rounded-lg">
+                <div className="w-16 font-medium">{dayLabels[day]}</div>
+                <Switch
+                  checked={formData.hours?.[day] !== null && formData.hours?.[day] !== undefined}
+                  onCheckedChange={() => toggleDayClosed(day)}
+                />
+                {formData.hours?.[day] ? (
+                  <>
+                    <Input
+                      type="time"
+                      value={formData.hours[day]?.open || "09:00"}
+                      onChange={(e) => handleHoursChange(day, "open", e.target.value)}
+                      className="w-32"
+                    />
+                    <span className="text-muted-foreground">至</span>
+                    <Input
+                      type="time"
+                      value={formData.hours[day]?.close || "21:00"}
+                      onChange={(e) => handleHoursChange(day, "close", e.target.value)}
+                      className="w-32"
+                    />
+                  </>
+                ) : (
+                  <span className="text-muted-foreground">休息</span>
+                )}
+              </div>
+            ))}
+          </div>
+        </TabsContent>
+
+        {/* 产品/品牌 */}
+        <TabsContent value="products" className="space-y-6 mt-4">
+          {/* 品牌 */}
+          <div className="space-y-3">
+            <Label>可选品牌 (Available Brands)</Label>
+            <div className="flex gap-2">
+              <Input
+                value={newBrand}
+                onChange={(e) => setNewBrand(e.target.value)}
+                placeholder="输入品牌名称或从下方选择"
+                onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addBrand())}
+              />
+              <Button type="button" onClick={addBrand}>添加</Button>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {availableBrands.map(brand => (
+                <Badge 
+                  key={brand}
+                  variant={formData.brands?.includes(brand) ? "default" : "outline"}
+                  className="cursor-pointer"
+                  onClick={() => {
+                    if (formData.brands?.includes(brand)) {
+                      removeBrand(brand);
+                    } else {
+                      setFormData({ ...formData, brands: [...(formData.brands || []), brand] });
+                    }
+                  }}
+                >
+                  {brand}
+                </Badge>
+              ))}
+            </div>
+            {formData.brands && formData.brands.length > 0 && (
+              <div className="p-3 bg-secondary rounded-lg">
+                <p className="text-sm text-muted-foreground mb-2">已选品牌:</p>
+                <div className="flex flex-wrap gap-2">
+                  {formData.brands.map(brand => (
+                    <Badge key={brand} variant="secondary" className="gap-1">
+                      {brand}
+                      <X 
+                        className="w-3 h-3 cursor-pointer" 
+                        onClick={() => removeBrand(brand)}
+                      />
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* 推荐产品 */}
+          <div className="space-y-3">
+            <Label>推荐产品 (Featured Products)</Label>
+            <div className="flex gap-2">
+              <Input
+                value={newProduct}
+                onChange={(e) => setNewProduct(e.target.value)}
+                placeholder="输入产品名称"
+                onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addProduct())}
+              />
+              <Button type="button" onClick={addProduct}>添加</Button>
+            </div>
+            {formData.featuredProducts && formData.featuredProducts.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {formData.featuredProducts.map(product => (
+                  <Badge key={product} variant="secondary" className="gap-1">
+                    {product}
+                    <X 
+                      className="w-3 h-3 cursor-pointer" 
+                      onClick={() => removeProduct(product)}
+                    />
+                  </Badge>
+                ))}
+              </div>
+            )}
+          </div>
+        </TabsContent>
+
+        {/* 图片 */}
+        <TabsContent value="media" className="space-y-4 mt-4">
+          <div className="space-y-2">
+            <Label htmlFor="imageUrl">主图 URL</Label>
+            <Input
+              id="imageUrl"
+              value={formData.imageUrl}
+              onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
+              placeholder="https://..."
+            />
+            {formData.imageUrl && (
+              <img 
+                src={formData.imageUrl} 
+                alt="主图预览" 
+                className="w-40 h-24 object-cover rounded-lg"
+              />
+            )}
+          </div>
+
+          <div className="space-y-3">
+            <Label>图片集 (Photo Gallery)</Label>
+            <div className="flex gap-2">
+              <Input
+                value={newPhotoUrl}
+                onChange={(e) => setNewPhotoUrl(e.target.value)}
+                placeholder="输入图片 URL"
+                onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addPhoto())}
+              />
+              <Button type="button" onClick={addPhoto}>添加</Button>
+            </div>
+            {formData.photos && formData.photos.length > 0 && (
+              <div className="grid grid-cols-4 gap-3">
+                {formData.photos.map((photo, index) => (
+                  <div key={index} className="relative group">
+                    <img 
+                      src={photo} 
+                      alt={`图片 ${index + 1}`} 
+                      className="w-full h-24 object-cover rounded-lg"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removePhoto(photo)}
+                      className="absolute top-1 right-1 p-1 bg-destructive text-destructive-foreground rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </TabsContent>
+      </Tabs>
+
+      <div className="flex justify-end gap-2 pt-4 border-t">
         <Button type="button" variant="outline" onClick={onCancel}>
           取消
         </Button>
