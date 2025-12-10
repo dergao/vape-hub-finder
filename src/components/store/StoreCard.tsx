@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Star, MapPin, Phone, Clock, Tag } from "lucide-react";
+import { Star, MapPin, Phone, Clock } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -12,7 +12,16 @@ interface StoreCardProps {
 
 export function StoreCard({ store, citySlug }: StoreCardProps) {
   return (
-    <Card variant="interactive" className="overflow-hidden group">
+    <Card variant="interactive" className="overflow-hidden group relative">
+      {/* Sponsored indicator - subtle, top right */}
+      {store.isSponsored && (
+        <div className="absolute top-2 right-2 z-10">
+          <span className="text-[10px] text-muted-foreground bg-background/80 px-1.5 py-0.5 rounded">
+            Ad
+          </span>
+        </div>
+      )}
+      
       <div className="relative h-48 overflow-hidden">
         <img 
           src={store.imageUrl} 
@@ -28,16 +37,6 @@ export function StoreCard({ store, citySlug }: StoreCardProps) {
             {store.isOpen ? "Open Now" : "Closed"}
           </Badge>
         </div>
-
-        {/* Coupon Badge */}
-        {store.hasCoupons && (
-          <div className="absolute top-3 right-3">
-            <Badge variant="coupon">
-              <Tag className="w-3 h-3 mr-1" />
-              Coupons
-            </Badge>
-          </div>
-        )}
 
         {/* Rating */}
         <div className="absolute bottom-3 left-3 flex items-center gap-1.5 bg-background/80 backdrop-blur-sm px-2 py-1 rounded-full">

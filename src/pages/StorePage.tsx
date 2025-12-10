@@ -1,13 +1,16 @@
 import { useParams, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { 
-  MapPin, Phone, Clock, Star, Navigation, Tag, 
+  MapPin, Phone, Clock, Star, Navigation, 
   ExternalLink, ChevronRight, Share2 
 } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { LocalBusinessSchema } from "@/components/seo/LocalBusinessSchema";
 import { RatingBar } from "@/components/store/RatingBar";
+import { ReviewCard } from "@/components/store/ReviewCard";
+import { PhotoGallery } from "@/components/store/PhotoGallery";
+import { BannerAd } from "@/components/store/BannerAd";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -60,18 +63,7 @@ const StorePage = () => {
         <Header />
         
         <main className="flex-1">
-          {/* Hero Image */}
-          <div className="relative h-64 md:h-80 overflow-hidden">
-            <img 
-              src={store.imageUrl} 
-              alt={store.name}
-              className="w-full h-full object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
-          </div>
-
-          {/* Main Content */}
-          <div className="container -mt-24 relative z-10 pb-12">
+          <div className="container py-6">
             {/* Breadcrumb */}
             <nav className="text-sm text-muted-foreground mb-4 flex items-center gap-1">
               <Link to="/" className="hover:text-primary">Home</Link>
@@ -82,6 +74,11 @@ const StorePage = () => {
               <ChevronRight className="w-4 h-4" />
               <span className="text-foreground truncate max-w-[150px]">{store.name}</span>
             </nav>
+
+            {/* Photo Gallery at Top */}
+            <div className="mb-8">
+              <PhotoGallery photos={store.photos} storeName={store.name} />
+            </div>
 
             <div className="grid lg:grid-cols-3 gap-8">
               {/* Left Column - Main Info */}
@@ -95,12 +92,6 @@ const StorePage = () => {
                           <Badge variant={store.isOpen ? "open" : "closed"} className="text-sm">
                             {store.isOpen ? "Open Now" : "Closed"}
                           </Badge>
-                          {store.hasCoupons && (
-                            <Badge variant="coupon" className="text-sm">
-                              <Tag className="w-3 h-3 mr-1" />
-                              Coupons Available
-                            </Badge>
-                          )}
                         </div>
                         <h1 className="text-3xl md:text-4xl font-bold mb-2">{store.name}</h1>
                         <div className="flex items-center gap-2 text-muted-foreground">
@@ -139,7 +130,7 @@ const StorePage = () => {
 
                     {/* Quick Actions */}
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                      <Button variant="hero" className="h-12" asChild>
+                      <Button variant="default" className="h-12" asChild>
                         <a href={`tel:${store.phone}`}>
                           <Phone className="w-4 h-4 mr-2" />
                           Call
@@ -211,6 +202,26 @@ const StorePage = () => {
                     </div>
                   </CardContent>
                 </Card>
+
+                {/* Banner Ad Space */}
+                <BannerAd />
+
+                {/* Reviews Section */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center justify-between">
+                      <span>Reviews ({store.reviews.length})</span>
+                      <Button variant="default" size="sm">
+                        Write a Review
+                      </Button>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    {store.reviews.map(review => (
+                      <ReviewCard key={review.id} review={review} />
+                    ))}
+                  </CardContent>
+                </Card>
               </div>
 
               {/* Right Column - Sidebar */}
@@ -266,26 +277,6 @@ const StorePage = () => {
                     </div>
                   </CardContent>
                 </Card>
-
-                {/* Coupon Placeholder */}
-                {store.hasCoupons && (
-                  <Card className="border-primary/30 bg-primary/5">
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <Tag className="w-5 h-5 text-primary" />
-                        Exclusive Offer
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-sm text-muted-foreground mb-4">
-                        Get 15% off your first purchase! Enter your email to claim this exclusive coupon.
-                      </p>
-                      <Button variant="hero" className="w-full">
-                        Claim Coupon
-                      </Button>
-                    </CardContent>
-                  </Card>
-                )}
               </div>
             </div>
           </div>
