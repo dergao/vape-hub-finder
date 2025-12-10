@@ -61,8 +61,8 @@ export function StoreCard({ store, citySlug }: StoreCardProps) {
         {/* Brands */}
         <div className="flex flex-wrap gap-1.5 mb-4">
           {store.brands.slice(0, 3).map(brand => (
-            <Badge key={brand} variant="brand" className="text-xs">
-              {brand}
+            <Badge key={brand.name} variant="brand" className="text-xs">
+              {brand.name}
             </Badge>
           ))}
           {store.brands.length > 3 && (

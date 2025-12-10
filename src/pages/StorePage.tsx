@@ -2,7 +2,7 @@ import { useParams, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { 
   MapPin, Phone, Clock, Star, Navigation, 
-  ExternalLink, ChevronRight, Share2 
+  ExternalLink, ChevronRight, Share2, Facebook 
 } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
@@ -177,10 +177,22 @@ const StorePage = () => {
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       {store.featuredProducts.map(product => (
                         <div 
-                          key={product}
+                          key={product.name}
                           className="p-4 bg-secondary rounded-lg text-center"
                         >
-                          <span className="font-medium">{product}</span>
+                          {product.url ? (
+                            <a 
+                              href={product.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="font-medium text-primary hover:underline inline-flex items-center gap-1"
+                            >
+                              {product.name}
+                              <ExternalLink className="w-3 h-3" />
+                            </a>
+                          ) : (
+                            <span className="font-medium">{product.name}</span>
+                          )}
                         </div>
                       ))}
                     </div>
@@ -195,9 +207,23 @@ const StorePage = () => {
                   <CardContent>
                     <div className="flex flex-wrap gap-2">
                       {store.brands.map(brand => (
-                        <Badge key={brand} variant="brand" className="text-sm px-3 py-1">
-                          {brand}
-                        </Badge>
+                        brand.url ? (
+                          <a 
+                            key={brand.name}
+                            href={brand.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <Badge variant="brand" className="text-sm px-3 py-1 hover:bg-primary/20 cursor-pointer inline-flex items-center gap-1">
+                              {brand.name}
+                              <ExternalLink className="w-3 h-3" />
+                            </Badge>
+                          </a>
+                        ) : (
+                          <Badge key={brand.name} variant="brand" className="text-sm px-3 py-1">
+                            {brand.name}
+                          </Badge>
+                        )
                       ))}
                     </div>
                   </CardContent>
@@ -275,6 +301,19 @@ const StorePage = () => {
                         {store.city}, {store.state} {store.zipCode}
                       </span>
                     </div>
+                    {store.facebook && (
+                      <div className="flex items-center gap-3">
+                        <Facebook className="w-5 h-5 text-blue-600" />
+                        <a 
+                          href={store.facebook}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="hover:text-primary transition-colors text-sm"
+                        >
+                          Facebook Page
+                        </a>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
 
