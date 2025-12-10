@@ -22,8 +22,8 @@ import {
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Search, Pencil, Trash2, Star, MapPin, X } from "lucide-react";
-import { stores, brands as availableBrands, type VapeStore } from "@/data/mockData";
+import { Plus, Search, Pencil, Trash2, Star, MapPin, X, ExternalLink } from "lucide-react";
+import { stores, brands as availableBrands, type VapeStore, type BrandItem, type ProductItem } from "@/data/mockData";
 import { useToast } from "@/hooks/use-toast";
 
 export default function AdminStores() {
@@ -198,6 +198,7 @@ function StoreForm({ store, onSave, onCancel }: StoreFormProps) {
     state: "",
     zipCode: "",
     phone: "",
+    facebook: "",
     rating: 0,
     reviewCount: 0,
     subRatings: { service: 0, inventory: 0, pricing: 0 },
@@ -222,8 +223,10 @@ function StoreForm({ store, onSave, onCancel }: StoreFormProps) {
     reviews: [],
   });
 
-  const [newBrand, setNewBrand] = useState("");
-  const [newProduct, setNewProduct] = useState("");
+  const [newBrandName, setNewBrandName] = useState("");
+  const [newBrandUrl, setNewBrandUrl] = useState("");
+  const [newProductName, setNewProductName] = useState("");
+  const [newProductUrl, setNewProductUrl] = useState("");
   const [newPhotoUrl, setNewPhotoUrl] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -259,25 +262,29 @@ function StoreForm({ store, onSave, onCancel }: StoreFormProps) {
   };
 
   const addBrand = () => {
-    if (newBrand && !formData.brands?.includes(newBrand)) {
+    if (newBrandName && !formData.brands?.some(b => b.name === newBrandName)) {
+      const newBrand: BrandItem = { name: newBrandName, url: newBrandUrl || undefined };
       setFormData({ ...formData, brands: [...(formData.brands || []), newBrand] });
-      setNewBrand("");
+      setNewBrandName("");
+      setNewBrandUrl("");
     }
   };
 
-  const removeBrand = (brand: string) => {
-    setFormData({ ...formData, brands: formData.brands?.filter(b => b !== brand) });
+  const removeBrand = (brandName: string) => {
+    setFormData({ ...formData, brands: formData.brands?.filter(b => b.name !== brandName) });
   };
 
   const addProduct = () => {
-    if (newProduct && !formData.featuredProducts?.includes(newProduct)) {
+    if (newProductName && !formData.featuredProducts?.some(p => p.name === newProductName)) {
+      const newProduct: ProductItem = { name: newProductName, url: newProductUrl || undefined };
       setFormData({ ...formData, featuredProducts: [...(formData.featuredProducts || []), newProduct] });
-      setNewProduct("");
+      setNewProductName("");
+      setNewProductUrl("");
     }
   };
 
-  const removeProduct = (product: string) => {
-    setFormData({ ...formData, featuredProducts: formData.featuredProducts?.filter(p => p !== product) });
+  const removeProduct = (productName: string) => {
+    setFormData({ ...formData, featuredProducts: formData.featuredProducts?.filter(p => p.name !== productName) });
   };
 
   const addPhoto = () => {
@@ -289,6 +296,13 @@ function StoreForm({ store, onSave, onCancel }: StoreFormProps) {
 
   const removePhoto = (photo: string) => {
     setFormData({ ...formData, photos: formData.photos?.filter(p => p !== photo) });
+  };
+
+  const addBrandFromSuggestion = (brandName: string) => {
+    if (!formData.brands?.some(b => b.name === brandName)) {
+      const newBrand: BrandItem = { name: brandName };
+      setFormData({ ...formData, brands: [...(formData.brands || []), newBrand] });
+    }
   };
 
   return (
@@ -321,6 +335,18 @@ function StoreForm({ store, onSave, onCancel }: StoreFormProps) {
                 value={formData.phone}
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                 placeholder="(xxx) xxx-xxxx"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="facebook">Facebook 主页</Label>
+              <Input
+                id="facebook"
+                value={formData.facebook || ""}
+                onChange={(e) => setFormData({ ...formData, facebook: e.target.value })}
+                placeholder="https://facebook.com/..."
               />
             </div>
           </div>
@@ -548,26 +574,33 @@ function StoreForm({ store, onSave, onCancel }: StoreFormProps) {
           {/* 品牌 */}
           <div className="space-y-3">
             <Label>可选品牌 (Available Brands)</Label>
-            <div className="flex gap-2">
+            <div className="grid grid-cols-2 gap-2">
               <Input
-                value={newBrand}
-                onChange={(e) => setNewBrand(e.target.value)}
-                placeholder="输入品牌名称或从下方选择"
+                value={newBrandName}
+                onChange={(e) => setNewBrandName(e.target.value)}
+                placeholder="品牌名称"
                 onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addBrand())}
               />
-              <Button type="button" onClick={addBrand}>添加</Button>
+              <div className="flex gap-2">
+                <Input
+                  value={newBrandUrl}
+                  onChange={(e) => setNewBrandUrl(e.target.value)}
+                  placeholder="URL 链接 (选填)"
+                />
+                <Button type="button" onClick={addBrand}>添加</Button>
+              </div>
             </div>
             <div className="flex flex-wrap gap-2">
               {availableBrands.map(brand => (
                 <Badge 
                   key={brand}
-                  variant={formData.brands?.includes(brand) ? "default" : "outline"}
+                  variant={formData.brands?.some(b => b.name === brand) ? "default" : "outline"}
                   className="cursor-pointer"
                   onClick={() => {
-                    if (formData.brands?.includes(brand)) {
+                    if (formData.brands?.some(b => b.name === brand)) {
                       removeBrand(brand);
                     } else {
-                      setFormData({ ...formData, brands: [...(formData.brands || []), brand] });
+                      addBrandFromSuggestion(brand);
                     }
                   }}
                 >
@@ -580,11 +613,12 @@ function StoreForm({ store, onSave, onCancel }: StoreFormProps) {
                 <p className="text-sm text-muted-foreground mb-2">已选品牌:</p>
                 <div className="flex flex-wrap gap-2">
                   {formData.brands.map(brand => (
-                    <Badge key={brand} variant="secondary" className="gap-1">
-                      {brand}
+                    <Badge key={brand.name} variant="secondary" className="gap-1">
+                      {brand.name}
+                      {brand.url && <ExternalLink className="w-3 h-3 text-primary" />}
                       <X 
                         className="w-3 h-3 cursor-pointer" 
-                        onClick={() => removeBrand(brand)}
+                        onClick={() => removeBrand(brand.name)}
                       />
                     </Badge>
                   ))}
@@ -596,23 +630,31 @@ function StoreForm({ store, onSave, onCancel }: StoreFormProps) {
           {/* 推荐产品 */}
           <div className="space-y-3">
             <Label>推荐产品 (Featured Products)</Label>
-            <div className="flex gap-2">
+            <div className="grid grid-cols-2 gap-2">
               <Input
-                value={newProduct}
-                onChange={(e) => setNewProduct(e.target.value)}
-                placeholder="输入产品名称"
+                value={newProductName}
+                onChange={(e) => setNewProductName(e.target.value)}
+                placeholder="产品名称"
                 onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addProduct())}
               />
-              <Button type="button" onClick={addProduct}>添加</Button>
+              <div className="flex gap-2">
+                <Input
+                  value={newProductUrl}
+                  onChange={(e) => setNewProductUrl(e.target.value)}
+                  placeholder="URL 链接 (选填)"
+                />
+                <Button type="button" onClick={addProduct}>添加</Button>
+              </div>
             </div>
             {formData.featuredProducts && formData.featuredProducts.length > 0 && (
               <div className="flex flex-wrap gap-2">
                 {formData.featuredProducts.map(product => (
-                  <Badge key={product} variant="secondary" className="gap-1">
-                    {product}
+                  <Badge key={product.name} variant="secondary" className="gap-1">
+                    {product.name}
+                    {product.url && <ExternalLink className="w-3 h-3 text-primary" />}
                     <X 
                       className="w-3 h-3 cursor-pointer" 
-                      onClick={() => removeProduct(product)}
+                      onClick={() => removeProduct(product.name)}
                     />
                   </Badge>
                 ))}

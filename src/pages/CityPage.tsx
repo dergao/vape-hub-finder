@@ -27,7 +27,7 @@ const CityPage = () => {
     
     if (selectedBrands.length > 0) {
       result = result.filter(store => 
-        selectedBrands.some(brand => store.brands.includes(brand))
+        selectedBrands.some(brandName => store.brands.some(b => b.name === brandName))
       );
     }
 

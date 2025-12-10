@@ -19,6 +19,16 @@ export interface Review {
   pricingRating: number;
 }
 
+export interface BrandItem {
+  name: string;
+  url?: string;
+}
+
+export interface ProductItem {
+  name: string;
+  url?: string;
+}
+
 export interface VapeStore {
   id: string;
   slug: string;
@@ -28,6 +38,7 @@ export interface VapeStore {
   state: string;
   zipCode: string;
   phone: string;
+  facebook?: string;
   rating: number;
   reviewCount: number;
   subRatings: {
@@ -40,8 +51,8 @@ export interface VapeStore {
     [key: string]: { open: string; close: string } | null;
   };
   coordinates: { lat: number; lng: number };
-  brands: string[];
-  featuredProducts: string[];
+  brands: BrandItem[];
+  featuredProducts: ProductItem[];
   imageUrl: string;
   photos: string[];
   description: string;
@@ -172,6 +183,7 @@ export const stores: VapeStore[] = [
     state: "CA",
     zipCode: "90028",
     phone: "(323) 555-0123",
+    facebook: "https://facebook.com/cloud9vapelounge",
     rating: 4.8,
     reviewCount: 234,
     subRatings: { service: 4.9, inventory: 4.7, pricing: 4.6 },
@@ -186,8 +198,17 @@ export const stores: VapeStore[] = [
       sunday: { open: "12:00", close: "18:00" },
     },
     coordinates: { lat: 34.0977, lng: -118.3285 },
-    brands: ["Juul", "Puff Bar", "Vuse", "SMOK"],
-    featuredProducts: ["Juul Pods Variety", "Puff Bar Plus", "SMOK Nord 4"],
+    brands: [
+      { name: "Juul", url: "https://juul.com" },
+      { name: "Puff Bar", url: "https://puffbar.com" },
+      { name: "Vuse" },
+      { name: "SMOK", url: "https://smok.com" },
+    ],
+    featuredProducts: [
+      { name: "Juul Pods Variety", url: "https://juul.com/pods" },
+      { name: "Puff Bar Plus" },
+      { name: "SMOK Nord 4", url: "https://smok.com/nord4" },
+    ],
     imageUrl: "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=800&q=80",
     photos: [
       "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=800&q=80",
@@ -223,8 +244,17 @@ export const stores: VapeStore[] = [
       sunday: { open: "11:00", close: "17:00" },
     },
     coordinates: { lat: 34.1061, lng: -118.3467 },
-    brands: ["NJOY", "blu", "Logic", "Vaporesso"],
-    featuredProducts: ["NJOY ACE Pods", "Vaporesso XROS", "Logic Pro"],
+    brands: [
+      { name: "NJOY" },
+      { name: "blu" },
+      { name: "Logic" },
+      { name: "Vaporesso", url: "https://vaporesso.com" },
+    ],
+    featuredProducts: [
+      { name: "NJOY ACE Pods" },
+      { name: "Vaporesso XROS", url: "https://vaporesso.com/xros" },
+      { name: "Logic Pro" },
+    ],
     imageUrl: "https://images.unsplash.com/photo-1527529482837-4698179dc6ce?w=800&q=80",
     photos: [
       "https://images.unsplash.com/photo-1527529482837-4698179dc6ce?w=800&q=80",
@@ -243,6 +273,7 @@ export const stores: VapeStore[] = [
     state: "CA",
     zipCode: "90015",
     phone: "(213) 555-0789",
+    facebook: "https://facebook.com/vapecitydtla",
     rating: 4.2,
     reviewCount: 156,
     subRatings: { service: 4.3, inventory: 4.4, pricing: 3.9 },
@@ -257,8 +288,17 @@ export const stores: VapeStore[] = [
       sunday: null,
     },
     coordinates: { lat: 34.0407, lng: -118.2558 },
-    brands: ["GeekVape", "Voopoo", "Lost Vape", "Uwell"],
-    featuredProducts: ["GeekVape Aegis", "Voopoo Drag 3", "Uwell Caliburn"],
+    brands: [
+      { name: "GeekVape", url: "https://geekvape.com" },
+      { name: "Voopoo", url: "https://voopoo.com" },
+      { name: "Lost Vape" },
+      { name: "Uwell" },
+    ],
+    featuredProducts: [
+      { name: "GeekVape Aegis", url: "https://geekvape.com/aegis" },
+      { name: "Voopoo Drag 3" },
+      { name: "Uwell Caliburn" },
+    ],
     imageUrl: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80",
     photos: [
       "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80",
@@ -291,8 +331,17 @@ export const stores: VapeStore[] = [
       sunday: { open: "10:00", close: "20:00" },
     },
     coordinates: { lat: 34.0195, lng: -118.4912 },
-    brands: ["Juul", "SMOK", "Aspire", "Innokin"],
-    featuredProducts: ["SMOK RPM 5", "Aspire Nautilus", "Innokin Kroma-R"],
+    brands: [
+      { name: "Juul" },
+      { name: "SMOK" },
+      { name: "Aspire" },
+      { name: "Innokin" },
+    ],
+    featuredProducts: [
+      { name: "SMOK RPM 5" },
+      { name: "Aspire Nautilus" },
+      { name: "Innokin Kroma-R" },
+    ],
     imageUrl: "https://images.unsplash.com/photo-1545558014-8692077e9b5c?w=800&q=80",
     photos: [
       "https://images.unsplash.com/photo-1545558014-8692077e9b5c?w=800&q=80",
@@ -311,6 +360,7 @@ export const stores: VapeStore[] = [
     state: "CA",
     zipCode: "90210",
     phone: "(310) 555-0567",
+    facebook: "https://facebook.com/elitevapesbh",
     rating: 4.9,
     reviewCount: 87,
     subRatings: { service: 5.0, inventory: 4.8, pricing: 4.0 },
@@ -325,8 +375,17 @@ export const stores: VapeStore[] = [
       sunday: { open: "12:00", close: "18:00" },
     },
     coordinates: { lat: 34.0736, lng: -118.4004 },
-    brands: ["Pax", "Firefly", "DaVinci", "Storz & Bickel"],
-    featuredProducts: ["Pax Era Pro", "DaVinci IQ2", "Mighty+"],
+    brands: [
+      { name: "Pax", url: "https://pax.com" },
+      { name: "Firefly" },
+      { name: "DaVinci", url: "https://davincivaporizer.com" },
+      { name: "Storz & Bickel" },
+    ],
+    featuredProducts: [
+      { name: "Pax Era Pro", url: "https://pax.com/era-pro" },
+      { name: "DaVinci IQ2" },
+      { name: "Mighty+" },
+    ],
     imageUrl: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800&q=80",
     photos: [
       "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800&q=80",
