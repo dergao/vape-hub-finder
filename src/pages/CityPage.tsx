@@ -31,8 +31,12 @@ const CityPage = () => {
       );
     }
 
-    // Sort: open stores first, then by rating
+    // Sort: sponsored first, then open stores, then by rating
     result.sort((a, b) => {
+      // Sponsored always first
+      if (a.isSponsored && !b.isSponsored) return -1;
+      if (!a.isSponsored && b.isSponsored) return 1;
+      // Then open stores
       if (a.isOpen !== b.isOpen) return a.isOpen ? -1 : 1;
       return b.rating - a.rating;
     });
