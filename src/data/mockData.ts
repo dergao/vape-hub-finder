@@ -1,3 +1,12 @@
+import losAngelesImg from "@/assets/cities/los-angeles.jpg";
+import newYorkImg from "@/assets/cities/new-york.jpg";
+import miamiImg from "@/assets/cities/miami.jpg";
+import chicagoImg from "@/assets/cities/chicago.jpg";
+import houstonImg from "@/assets/cities/houston.jpg";
+import phoenixImg from "@/assets/cities/phoenix.jpg";
+import denverImg from "@/assets/cities/denver.jpg";
+import seattleImg from "@/assets/cities/seattle.jpg";
+
 export interface Review {
   id: string;
   userName: string;
@@ -57,7 +66,7 @@ export const cities: City[] = [
     state: "CA",
     storeCount: 342,
     averageRating: 4.2,
-    imageUrl: "https://images.unsplash.com/photo-1534190760961-74e8c1c5c3da?w=800&q=80",
+    imageUrl: losAngelesImg,
   },
   {
     slug: "new-york",
@@ -65,7 +74,7 @@ export const cities: City[] = [
     state: "NY",
     storeCount: 456,
     averageRating: 4.1,
-    imageUrl: "https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?w=800&q=80",
+    imageUrl: newYorkImg,
   },
   {
     slug: "miami",
@@ -73,7 +82,7 @@ export const cities: City[] = [
     state: "FL",
     storeCount: 189,
     averageRating: 4.3,
-    imageUrl: "https://images.unsplash.com/photo-1506966953602-c20cc11f75e3?w=800&q=80",
+    imageUrl: miamiImg,
   },
   {
     slug: "chicago",
@@ -81,7 +90,7 @@ export const cities: City[] = [
     state: "IL",
     storeCount: 234,
     averageRating: 4.0,
-    imageUrl: "https://images.unsplash.com/photo-1494522855154-9297ac14b55f?w=800&q=80",
+    imageUrl: chicagoImg,
   },
   {
     slug: "houston",
@@ -89,7 +98,7 @@ export const cities: City[] = [
     state: "TX",
     storeCount: 198,
     averageRating: 4.2,
-    imageUrl: "https://images.unsplash.com/photo-1530089711124-9ca31fb9e863?w=800&q=80",
+    imageUrl: houstonImg,
   },
   {
     slug: "phoenix",
@@ -97,7 +106,7 @@ export const cities: City[] = [
     state: "AZ",
     storeCount: 145,
     averageRating: 4.1,
-    imageUrl: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80",
+    imageUrl: phoenixImg,
   },
   {
     slug: "denver",
@@ -105,7 +114,7 @@ export const cities: City[] = [
     state: "CO",
     storeCount: 167,
     averageRating: 4.4,
-    imageUrl: "https://images.unsplash.com/photo-1619856699906-09e1f58c98b1?w=800&q=80",
+    imageUrl: denverImg,
   },
   {
     slug: "seattle",
@@ -113,7 +122,7 @@ export const cities: City[] = [
     state: "WA",
     storeCount: 178,
     averageRating: 4.3,
-    imageUrl: "https://images.unsplash.com/photo-1502175353174-a7a70e73b362?w=800&q=80",
+    imageUrl: seattleImg,
   },
 ];
 
