@@ -1,0 +1,11 @@
+name,slug,state,country,store_count,avg_rating,image_url
+"Los Angeles","los-angeles","California","us",5,4.3,""
+"New York","new-york","New York","us",4,4.1,""
+"Miami","miami","Florida","us",3,4.2,""
+"Chicago","chicago","Illinois","us",3,4.0,""
+"Houston","houston","Texas","us",2,4.4,""
+"Phoenix","phoenix","Arizona","us",2,3.9,""
+"Seattle","seattle","Washington","us",2,4.5,""
+"Denver","denver","Colorado","us",2,4.2,""
+"San Francisco","san-francisco","California","us",0,0,""
+"Boston","boston","Massachusetts","us",0,0,""

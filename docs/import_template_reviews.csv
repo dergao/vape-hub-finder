@@ -1,0 +1,6 @@
+store_slug,city_slug,user_name,user_avatar,overall_rating,service_rating,inventory_rating,pricing_rating,content,is_approved,created_at
+"cloud-9-vape-lounge","los-angeles","John D.","",4.5,5.0,4.5,4.0,"Great selection and super friendly staff! They helped me find the perfect setup.",true,"2024-01-15"
+"cloud-9-vape-lounge","los-angeles","Sarah M.","",4.0,4.0,4.5,3.5,"Good variety of products. Prices are a bit high but the quality makes up for it.",true,"2024-01-10"
+"cloud-9-vape-lounge","los-angeles","Mike R.","",5.0,5.0,5.0,4.5,"Best vape shop in LA! The staff really knows their stuff.",true,"2024-01-18"
+"manhattan-vape-co","new-york","Emily K.","",4.5,4.5,4.0,4.5,"Love the atmosphere here. Great place to hang out and try new flavors.",true,"2024-01-12"
+"manhattan-vape-co","new-york","David L.","",3.5,4.0,3.5,3.0,"Decent shop but limited selection compared to others in the area.",true,"2024-01-08"
