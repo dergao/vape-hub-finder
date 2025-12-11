@@ -144,6 +144,8 @@ git --version
 
 ## 第四部分：部署 Supabase 自托管
 
+> ⚠️ **重要说明**: Supabase Docker 是从 **Supabase 官方 GitHub 仓库** 克隆的，不是项目中的 `supabase/` 配置文件夹。项目中的 `supabase/` 文件夹只包含 Lovable Cloud 的配置文件（config.toml），没有 docker 目录。
+
 ### 4.1 克隆 Supabase Docker 配置
 
 #### 🐧 Linux
@@ -153,9 +155,9 @@ git --version
 mkdir -p /opt/vapefinder
 cd /opt/vapefinder
 
-# 克隆 Supabase
-git clone --depth 1 https://github.com/supabase/supabase
-cd supabase/docker
+# 克隆 Supabase 官方仓库（包含 docker 目录）
+git clone --depth 1 https://github.com/supabase/supabase supabase-docker
+cd supabase-docker/docker
 
 # 复制环境配置
 cp .env.example .env
@@ -168,13 +170,25 @@ cp .env.example .env
 New-Item -ItemType Directory -Force -Path C:\vapefinder
 Set-Location C:\vapefinder
 
-# 克隆 Supabase
-git clone --depth 1 https://github.com/supabase/supabase
-Set-Location supabase\docker
+# 克隆 Supabase 官方仓库（包含 docker 目录）
+git clone --depth 1 https://github.com/supabase/supabase supabase-docker
+Set-Location supabase-docker\docker
 
 # 复制环境配置
 Copy-Item .env.example .env
 ```
+
+> 📁 **目录结构说明**:
+> ```
+> C:\vapefinder\
+> ├── supabase-docker\    ← 从 GitHub 克隆的 Supabase 官方仓库
+> │   └── docker\         ← Docker 配置文件在这里
+> │       ├── .env
+> │       └── docker-compose.yml
+> └── frontend\           ← 你的 VapeFinder 前端项目
+>     └── supabase\       ← Lovable 配置（不是 Docker！）
+>         └── config.toml
+> ```
 
 ### 4.2 配置 Supabase 环境变量
 
@@ -287,7 +301,7 @@ openssl rand -base64 32
 #### 🐧 Linux
 
 ```bash
-cd /opt/vapefinder/supabase/docker
+cd /opt/vapefinder/supabase-docker/docker
 
 # 拉取镜像
 docker compose pull
@@ -305,7 +319,7 @@ docker compose logs -f
 #### 🪟 Windows (PowerShell)
 
 ```powershell
-Set-Location C:\vapefinder\supabase\docker
+Set-Location C:\vapefinder\supabase-docker\docker
 
 # 拉取镜像
 docker compose pull
