@@ -8,6 +8,7 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { LocalBusinessSchema } from "@/components/seo/LocalBusinessSchema";
 import { BreadcrumbSchema } from "@/components/seo/BreadcrumbSchema";
+import { ReviewSchema } from "@/components/seo/ReviewSchema";
 import { RatingBar } from "@/components/store/RatingBar";
 import { ReviewCard } from "@/components/store/ReviewCard";
 import { PhotoGallery } from "@/components/store/PhotoGallery";
@@ -65,6 +66,7 @@ const StorePage = () => {
         { name: city.name, url: `https://vapefinder.com/us/${citySlug}` },
         { name: store.name, url: `https://vapefinder.com/us/${citySlug}/${storeSlug}` }
       ]} />
+      <ReviewSchema store={store} reviews={store.reviews} />
 
       <div className="min-h-screen flex flex-col">
         <Header />
