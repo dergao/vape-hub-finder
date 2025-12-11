@@ -38,6 +38,7 @@ export interface VapeStore {
   state: string;
   zipCode: string;
   phone: string;
+  website?: string;
   facebook?: string;
   rating: number;
   reviewCount: number;
@@ -230,6 +231,7 @@ export const stores: VapeStore[] = [
     state: "CA",
     zipCode: "90046",
     phone: "(323) 555-0456",
+    website: "https://vaporparadise.com",
     rating: 4.5,
     reviewCount: 189,
     subRatings: { service: 4.6, inventory: 4.5, pricing: 4.3 },
