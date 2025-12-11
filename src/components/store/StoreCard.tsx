@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Star, MapPin, Phone, Clock } from "lucide-react";
+import { Star, MapPin, Phone, Clock, Navigation } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -8,9 +8,10 @@ import type { VapeStore } from "@/data/mockData";
 interface StoreCardProps {
   store: VapeStore;
   citySlug: string;
+  distance?: string;
 }
 
-export function StoreCard({ store, citySlug }: StoreCardProps) {
+export function StoreCard({ store, citySlug, distance }: StoreCardProps) {
   return (
     <Card variant="interactive" className="overflow-hidden group relative">
       {/* Sponsored indicator - subtle, top right */}
@@ -53,10 +54,17 @@ export function StoreCard({ store, citySlug }: StoreCardProps) {
           </h3>
         </Link>
         
-        <div className="flex items-center gap-1.5 text-sm text-muted-foreground mb-3">
+        <div className={`flex items-center gap-1.5 text-sm text-muted-foreground ${distance ? 'mb-1' : 'mb-3'}`}>
           <MapPin className="w-4 h-4 shrink-0" />
           <span className="truncate">{store.address}, {store.zipCode}</span>
         </div>
+        
+        {distance && (
+          <div className="flex items-center gap-1.5 text-sm text-primary mb-3">
+            <Navigation className="w-4 h-4 shrink-0" />
+            <span>{distance} away</span>
+          </div>
+        )}
 
         {/* Brands */}
         <div className="flex flex-wrap gap-1.5 mb-4">
