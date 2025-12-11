@@ -6,17 +6,19 @@ import {
   MessageSquare, 
   Megaphone,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Users
 } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 
 const menuItems = [
   { title: "Dashboard", url: "/admin", icon: LayoutDashboard },
-  { title: "店铺管理", url: "/admin/stores", icon: Store },
-  { title: "城市管理", url: "/admin/cities", icon: MapPin },
-  { title: "评论管理", url: "/admin/reviews", icon: MessageSquare },
-  { title: "广告管理", url: "/admin/ads", icon: Megaphone },
+  { title: "Stores", url: "/admin/stores", icon: Store },
+  { title: "Cities", url: "/admin/cities", icon: MapPin },
+  { title: "Reviews", url: "/admin/reviews", icon: MessageSquare },
+  { title: "Ads", url: "/admin/ads", icon: Megaphone },
+  { title: "Social Groups", url: "/admin/social-groups", icon: Users },
 ];
 
 export function AdminSidebar() {
@@ -62,7 +64,7 @@ export function AdminSidebar() {
       <div className="p-4 border-t border-border">
         <NavLink to="/" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
           <ChevronLeft className="w-4 h-4" />
-          {!collapsed && <span>返回前台</span>}
+          {!collapsed && <span>Back to Site</span>}
         </NavLink>
       </div>
     </aside>

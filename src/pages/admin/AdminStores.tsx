@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,9 +22,10 @@ import {
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Search, Pencil, Trash2, Star, MapPin, X, ExternalLink } from "lucide-react";
+import { Plus, Search, Pencil, Trash2, Star, MapPin, X, ExternalLink, Upload, Loader2 } from "lucide-react";
 import { stores, brands as availableBrands, type VapeStore, type BrandItem, type ProductItem } from "@/data/mockData";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function AdminStores() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -40,23 +41,23 @@ export default function AdminStores() {
 
   const handleDelete = (id: string) => {
     setStoreList(storeList.filter(s => s.id !== id));
-    toast({ title: "店铺已删除" });
+    toast({ title: "Store deleted" });
   };
 
   const handleToggleSponsored = (id: string) => {
     setStoreList(storeList.map(s => 
       s.id === id ? { ...s, isSponsored: !s.isSponsored } : s
     ));
-    toast({ title: "赞助状态已更新" });
+    toast({ title: "Sponsored status updated" });
   };
 
   const handleSave = (store: VapeStore) => {
     if (editingStore) {
       setStoreList(storeList.map(s => s.id === store.id ? store : s));
-      toast({ title: "店铺已更新" });
+      toast({ title: "Store updated" });
     } else {
       setStoreList([...storeList, { ...store, id: Date.now().toString() }]);
-      toast({ title: "店铺已添加" });
+      toast({ title: "Store added" });
     }
     setIsDialogOpen(false);
     setEditingStore(null);
@@ -66,19 +67,19 @@ export default function AdminStores() {
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">店铺管理</h1>
-          <p className="text-muted-foreground">管理所有 Vape 店铺信息</p>
+          <h1 className="text-2xl font-bold">Store Management</h1>
+          <p className="text-muted-foreground">Manage all vape store information</p>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
             <Button onClick={() => setEditingStore(null)}>
               <Plus className="w-4 h-4 mr-2" />
-              添加店铺
+              Add Store
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>{editingStore ? "编辑店铺" : "添加店铺"}</DialogTitle>
+              <DialogTitle>{editingStore ? "Edit Store" : "Add Store"}</DialogTitle>
             </DialogHeader>
             <StoreForm 
               store={editingStore} 
@@ -94,7 +95,7 @@ export default function AdminStores() {
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
-              placeholder="搜索店铺名称或城市..."
+              placeholder="Search store name or city..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10"
@@ -105,12 +106,12 @@ export default function AdminStores() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>店铺名称</TableHead>
-              <TableHead>位置</TableHead>
-              <TableHead>评分</TableHead>
-              <TableHead>状态</TableHead>
-              <TableHead>赞助</TableHead>
-              <TableHead className="text-right">操作</TableHead>
+              <TableHead>Store Name</TableHead>
+              <TableHead>Location</TableHead>
+              <TableHead>Rating</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Sponsored</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -134,7 +135,7 @@ export default function AdminStores() {
                 </TableCell>
                 <TableCell>
                   <Badge variant={store.isOpen ? "default" : "secondary"}>
-                    {store.isOpen ? "营业中" : "已关门"}
+                    {store.isOpen ? "Open" : "Closed"}
                   </Badge>
                 </TableCell>
                 <TableCell>
@@ -181,16 +182,22 @@ interface StoreFormProps {
 
 const dayNames = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
 const dayLabels: Record<string, string> = {
-  monday: "周一",
-  tuesday: "周二", 
-  wednesday: "周三",
-  thursday: "周四",
-  friday: "周五",
-  saturday: "周六",
-  sunday: "周日",
+  monday: "Monday",
+  tuesday: "Tuesday", 
+  wednesday: "Wednesday",
+  thursday: "Thursday",
+  friday: "Friday",
+  saturday: "Saturday",
+  sunday: "Sunday",
 };
 
 function StoreForm({ store, onSave, onCancel }: StoreFormProps) {
+  const { toast } = useToast();
+  const mainImageInputRef = useRef<HTMLInputElement>(null);
+  const galleryInputRef = useRef<HTMLInputElement>(null);
+  const [uploadingMain, setUploadingMain] = useState(false);
+  const [uploadingGallery, setUploadingGallery] = useState(false);
+
   const [formData, setFormData] = useState<Partial<VapeStore>>(store || {
     name: "",
     address: "",
@@ -227,7 +234,6 @@ function StoreForm({ store, onSave, onCancel }: StoreFormProps) {
   const [newBrandUrl, setNewBrandUrl] = useState("");
   const [newProductName, setNewProductName] = useState("");
   const [newProductUrl, setNewProductUrl] = useState("");
-  const [newPhotoUrl, setNewPhotoUrl] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -287,17 +293,6 @@ function StoreForm({ store, onSave, onCancel }: StoreFormProps) {
     setFormData({ ...formData, featuredProducts: formData.featuredProducts?.filter(p => p.name !== productName) });
   };
 
-  const addPhoto = () => {
-    if (newPhotoUrl && !formData.photos?.includes(newPhotoUrl)) {
-      setFormData({ ...formData, photos: [...(formData.photos || []), newPhotoUrl] });
-      setNewPhotoUrl("");
-    }
-  };
-
-  const removePhoto = (photo: string) => {
-    setFormData({ ...formData, photos: formData.photos?.filter(p => p !== photo) });
-  };
-
   const addBrandFromSuggestion = (brandName: string) => {
     if (!formData.brands?.some(b => b.name === brandName)) {
       const newBrand: BrandItem = { name: brandName };
@@ -305,22 +300,105 @@ function StoreForm({ store, onSave, onCancel }: StoreFormProps) {
     }
   };
 
+  // Image upload functions
+  const uploadMainImage = async (file: File) => {
+    if (!file.type.startsWith('image/')) {
+      toast({ title: "Please select an image file", variant: "destructive" });
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast({ title: "Image must be less than 5MB", variant: "destructive" });
+      return;
+    }
+
+    setUploadingMain(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `main-${Date.now()}.${fileExt}`;
+      const filePath = `stores/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('store-images')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('store-images')
+        .getPublicUrl(filePath);
+
+      setFormData({ ...formData, imageUrl: publicUrl });
+      toast({ title: "Main image uploaded" });
+    } catch (error) {
+      console.error('Upload error:', error);
+      toast({ title: "Upload failed", variant: "destructive" });
+    } finally {
+      setUploadingMain(false);
+    }
+  };
+
+  const uploadGalleryImage = async (file: File) => {
+    if (!file.type.startsWith('image/')) {
+      toast({ title: "Please select an image file", variant: "destructive" });
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast({ title: "Image must be less than 5MB", variant: "destructive" });
+      return;
+    }
+
+    setUploadingGallery(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `gallery-${Date.now()}.${fileExt}`;
+      const filePath = `stores/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('store-images')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('store-images')
+        .getPublicUrl(filePath);
+
+      setFormData({ ...formData, photos: [...(formData.photos || []), publicUrl] });
+      toast({ title: "Gallery image uploaded" });
+    } catch (error) {
+      console.error('Upload error:', error);
+      toast({ title: "Upload failed", variant: "destructive" });
+    } finally {
+      setUploadingGallery(false);
+    }
+  };
+
+  const removeMainImage = () => {
+    setFormData({ ...formData, imageUrl: "" });
+  };
+
+  const removePhoto = (photo: string) => {
+    setFormData({ ...formData, photos: formData.photos?.filter(p => p !== photo) });
+  };
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <Tabs defaultValue="basic" className="w-full">
         <TabsList className="grid w-full grid-cols-5">
-          <TabsTrigger value="basic">基本信息</TabsTrigger>
-          <TabsTrigger value="ratings">评分</TabsTrigger>
-          <TabsTrigger value="hours">营业时间</TabsTrigger>
-          <TabsTrigger value="products">产品/品牌</TabsTrigger>
-          <TabsTrigger value="media">图片</TabsTrigger>
+          <TabsTrigger value="basic">Basic Info</TabsTrigger>
+          <TabsTrigger value="ratings">Ratings</TabsTrigger>
+          <TabsTrigger value="hours">Hours</TabsTrigger>
+          <TabsTrigger value="products">Products/Brands</TabsTrigger>
+          <TabsTrigger value="media">Images</TabsTrigger>
         </TabsList>
 
-        {/* 基本信息 */}
+        {/* Basic Info */}
         <TabsContent value="basic" className="space-y-4 mt-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="name">店铺名称 *</Label>
+              <Label htmlFor="name">Store Name *</Label>
               <Input
                 id="name"
                 value={formData.name}
@@ -329,7 +407,7 @@ function StoreForm({ store, onSave, onCancel }: StoreFormProps) {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="phone">电话</Label>
+              <Label htmlFor="phone">Phone</Label>
               <Input
                 id="phone"
                 value={formData.phone}
@@ -341,7 +419,7 @@ function StoreForm({ store, onSave, onCancel }: StoreFormProps) {
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="facebook">Facebook 主页</Label>
+              <Label htmlFor="facebook">Facebook Page</Label>
               <Input
                 id="facebook"
                 value={formData.facebook || ""}
@@ -352,7 +430,7 @@ function StoreForm({ store, onSave, onCancel }: StoreFormProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="address">详细地址</Label>
+            <Label htmlFor="address">Address</Label>
             <Input
               id="address"
               value={formData.address}
@@ -362,7 +440,7 @@ function StoreForm({ store, onSave, onCancel }: StoreFormProps) {
 
           <div className="grid grid-cols-3 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="city">城市</Label>
+              <Label htmlFor="city">City</Label>
               <Input
                 id="city"
                 value={formData.city}
@@ -370,7 +448,7 @@ function StoreForm({ store, onSave, onCancel }: StoreFormProps) {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="state">州</Label>
+              <Label htmlFor="state">State</Label>
               <Input
                 id="state"
                 value={formData.state}
@@ -379,7 +457,7 @@ function StoreForm({ store, onSave, onCancel }: StoreFormProps) {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="zipCode">邮编</Label>
+              <Label htmlFor="zipCode">Zip Code</Label>
               <Input
                 id="zipCode"
                 value={formData.zipCode}
@@ -390,7 +468,7 @@ function StoreForm({ store, onSave, onCancel }: StoreFormProps) {
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="lat">纬度 (Latitude)</Label>
+              <Label htmlFor="lat">Latitude</Label>
               <Input
                 id="lat"
                 type="number"
@@ -403,7 +481,7 @@ function StoreForm({ store, onSave, onCancel }: StoreFormProps) {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="lng">经度 (Longitude)</Label>
+              <Label htmlFor="lng">Longitude</Label>
               <Input
                 id="lng"
                 type="number"
@@ -418,19 +496,19 @@ function StoreForm({ store, onSave, onCancel }: StoreFormProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">店铺描述</Label>
+            <Label htmlFor="description">Description</Label>
             <Textarea
               id="description"
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               rows={3}
-              placeholder="介绍店铺的特色和服务..."
+              placeholder="Describe the store's features and services..."
             />
           </div>
 
           <div className="grid grid-cols-3 gap-4">
             <div className="flex items-center justify-between p-3 border rounded-lg">
-              <Label htmlFor="isOpen">营业状态</Label>
+              <Label htmlFor="isOpen">Open Status</Label>
               <Switch
                 id="isOpen"
                 checked={formData.isOpen}
@@ -438,7 +516,7 @@ function StoreForm({ store, onSave, onCancel }: StoreFormProps) {
               />
             </div>
             <div className="flex items-center justify-between p-3 border rounded-lg">
-              <Label htmlFor="isSponsored">赞助商</Label>
+              <Label htmlFor="isSponsored">Sponsored</Label>
               <Switch
                 id="isSponsored"
                 checked={formData.isSponsored}
@@ -446,7 +524,7 @@ function StoreForm({ store, onSave, onCancel }: StoreFormProps) {
               />
             </div>
             <div className="flex items-center justify-between p-3 border rounded-lg">
-              <Label htmlFor="hasCoupons">有优惠券</Label>
+              <Label htmlFor="hasCoupons">Has Coupons</Label>
               <Switch
                 id="hasCoupons"
                 checked={formData.hasCoupons}
@@ -456,11 +534,11 @@ function StoreForm({ store, onSave, onCancel }: StoreFormProps) {
           </div>
         </TabsContent>
 
-        {/* 评分 */}
+        {/* Ratings */}
         <TabsContent value="ratings" className="space-y-4 mt-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="rating">总评分 (0-5)</Label>
+              <Label htmlFor="rating">Overall Rating (0-5)</Label>
               <Input
                 id="rating"
                 type="number"
@@ -472,7 +550,7 @@ function StoreForm({ store, onSave, onCancel }: StoreFormProps) {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="reviewCount">评价数量</Label>
+              <Label htmlFor="reviewCount">Review Count</Label>
               <Input
                 id="reviewCount"
                 type="number"
@@ -484,10 +562,10 @@ function StoreForm({ store, onSave, onCancel }: StoreFormProps) {
           </div>
 
           <div className="p-4 border rounded-lg space-y-4">
-            <h4 className="font-medium">子评分 (显示在店铺详情页)</h4>
+            <h4 className="font-medium">Sub-Ratings (Shown on store detail page)</h4>
             <div className="grid grid-cols-3 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="serviceRating">服务态度 (Service)</Label>
+                <Label htmlFor="serviceRating">Service (0-5)</Label>
                 <Input
                   id="serviceRating"
                   type="number"
@@ -502,7 +580,7 @@ function StoreForm({ store, onSave, onCancel }: StoreFormProps) {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="inventoryRating">库存丰富度 (Inventory)</Label>
+                <Label htmlFor="inventoryRating">Inventory (0-5)</Label>
                 <Input
                   id="inventoryRating"
                   type="number"
@@ -517,7 +595,7 @@ function StoreForm({ store, onSave, onCancel }: StoreFormProps) {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="pricingRating">价格合理性 (Pricing)</Label>
+                <Label htmlFor="pricingRating">Pricing (0-5)</Label>
                 <Input
                   id="pricingRating"
                   type="number"
@@ -535,12 +613,12 @@ function StoreForm({ store, onSave, onCancel }: StoreFormProps) {
           </div>
         </TabsContent>
 
-        {/* 营业时间 */}
+        {/* Hours */}
         <TabsContent value="hours" className="space-y-4 mt-4">
           <div className="space-y-3">
             {dayNames.map(day => (
               <div key={day} className="flex items-center gap-4 p-3 border rounded-lg">
-                <div className="w-16 font-medium">{dayLabels[day]}</div>
+                <div className="w-24 font-medium">{dayLabels[day]}</div>
                 <Switch
                   checked={formData.hours?.[day] !== null && formData.hours?.[day] !== undefined}
                   onCheckedChange={() => toggleDayClosed(day)}
@@ -553,7 +631,7 @@ function StoreForm({ store, onSave, onCancel }: StoreFormProps) {
                       onChange={(e) => handleHoursChange(day, "open", e.target.value)}
                       className="w-32"
                     />
-                    <span className="text-muted-foreground">至</span>
+                    <span className="text-muted-foreground">to</span>
                     <Input
                       type="time"
                       value={formData.hours[day]?.close || "21:00"}
@@ -562,32 +640,32 @@ function StoreForm({ store, onSave, onCancel }: StoreFormProps) {
                     />
                   </>
                 ) : (
-                  <span className="text-muted-foreground">休息</span>
+                  <span className="text-muted-foreground">Closed</span>
                 )}
               </div>
             ))}
           </div>
         </TabsContent>
 
-        {/* 产品/品牌 */}
+        {/* Products/Brands */}
         <TabsContent value="products" className="space-y-6 mt-4">
-          {/* 品牌 */}
+          {/* Brands */}
           <div className="space-y-3">
-            <Label>可选品牌 (Available Brands)</Label>
+            <Label>Available Brands</Label>
             <div className="grid grid-cols-2 gap-2">
               <Input
                 value={newBrandName}
                 onChange={(e) => setNewBrandName(e.target.value)}
-                placeholder="品牌名称"
+                placeholder="Brand name"
                 onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addBrand())}
               />
               <div className="flex gap-2">
                 <Input
                   value={newBrandUrl}
                   onChange={(e) => setNewBrandUrl(e.target.value)}
-                  placeholder="URL 链接 (选填)"
+                  placeholder="URL (optional)"
                 />
-                <Button type="button" onClick={addBrand}>添加</Button>
+                <Button type="button" onClick={addBrand}>Add</Button>
               </div>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -610,7 +688,7 @@ function StoreForm({ store, onSave, onCancel }: StoreFormProps) {
             </div>
             {formData.brands && formData.brands.length > 0 && (
               <div className="p-3 bg-secondary rounded-lg">
-                <p className="text-sm text-muted-foreground mb-2">已选品牌:</p>
+                <p className="text-sm text-muted-foreground mb-2">Selected brands:</p>
                 <div className="flex flex-wrap gap-2">
                   {formData.brands.map(brand => (
                     <Badge key={brand.name} variant="secondary" className="gap-1">
@@ -627,23 +705,23 @@ function StoreForm({ store, onSave, onCancel }: StoreFormProps) {
             )}
           </div>
 
-          {/* 推荐产品 */}
+          {/* Featured Products */}
           <div className="space-y-3">
-            <Label>推荐产品 (Featured Products)</Label>
+            <Label>Featured Products</Label>
             <div className="grid grid-cols-2 gap-2">
               <Input
                 value={newProductName}
                 onChange={(e) => setNewProductName(e.target.value)}
-                placeholder="产品名称"
+                placeholder="Product name"
                 onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addProduct())}
               />
               <div className="flex gap-2">
                 <Input
                   value={newProductUrl}
                   onChange={(e) => setNewProductUrl(e.target.value)}
-                  placeholder="URL 链接 (选填)"
+                  placeholder="URL (optional)"
                 />
-                <Button type="button" onClick={addProduct}>添加</Button>
+                <Button type="button" onClick={addProduct}>Add</Button>
               </div>
             </div>
             {formData.featuredProducts && formData.featuredProducts.length > 0 && (
@@ -663,65 +741,110 @@ function StoreForm({ store, onSave, onCancel }: StoreFormProps) {
           </div>
         </TabsContent>
 
-        {/* 图片 */}
+        {/* Images */}
         <TabsContent value="media" className="space-y-4 mt-4">
-          <div className="space-y-2">
-            <Label htmlFor="imageUrl">主图 URL</Label>
-            <Input
-              id="imageUrl"
-              value={formData.imageUrl}
-              onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-              placeholder="https://..."
+          <div className="space-y-3">
+            <Label>Main Image</Label>
+            <input
+              ref={mainImageInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) uploadMainImage(file);
+              }}
             />
-            {formData.imageUrl && (
-              <img 
-                src={formData.imageUrl} 
-                alt="主图预览" 
-                className="w-40 h-24 object-cover rounded-lg"
-              />
+            {formData.imageUrl ? (
+              <div className="relative w-48 h-32 group">
+                <img 
+                  src={formData.imageUrl} 
+                  alt="Main preview" 
+                  className="w-full h-full object-cover rounded-lg"
+                />
+                <button
+                  type="button"
+                  onClick={removeMainImage}
+                  className="absolute top-2 right-2 p-1 bg-destructive text-destructive-foreground rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            ) : (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => mainImageInputRef.current?.click()}
+                disabled={uploadingMain}
+                className="w-48 h-32 flex flex-col items-center justify-center gap-2 border-dashed"
+              >
+                {uploadingMain ? (
+                  <Loader2 className="w-6 h-6 animate-spin" />
+                ) : (
+                  <>
+                    <Upload className="w-6 h-6" />
+                    <span className="text-sm">Upload Main Image</span>
+                  </>
+                )}
+              </Button>
             )}
           </div>
 
           <div className="space-y-3">
-            <Label>图片集 (Photo Gallery)</Label>
-            <div className="flex gap-2">
-              <Input
-                value={newPhotoUrl}
-                onChange={(e) => setNewPhotoUrl(e.target.value)}
-                placeholder="输入图片 URL"
-                onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addPhoto())}
-              />
-              <Button type="button" onClick={addPhoto}>添加</Button>
+            <Label>Photo Gallery</Label>
+            <input
+              ref={galleryInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) uploadGalleryImage(file);
+              }}
+            />
+            <div className="grid grid-cols-4 gap-3">
+              {formData.photos?.map((photo, index) => (
+                <div key={index} className="relative group">
+                  <img 
+                    src={photo} 
+                    alt={`Photo ${index + 1}`} 
+                    className="w-full h-24 object-cover rounded-lg"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removePhoto(photo)}
+                    className="absolute top-1 right-1 p-1 bg-destructive text-destructive-foreground rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
+              ))}
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => galleryInputRef.current?.click()}
+                disabled={uploadingGallery}
+                className="h-24 flex flex-col items-center justify-center gap-1 border-dashed"
+              >
+                {uploadingGallery ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  <>
+                    <Upload className="w-5 h-5" />
+                    <span className="text-xs">Add Photo</span>
+                  </>
+                )}
+              </Button>
             </div>
-            {formData.photos && formData.photos.length > 0 && (
-              <div className="grid grid-cols-4 gap-3">
-                {formData.photos.map((photo, index) => (
-                  <div key={index} className="relative group">
-                    <img 
-                      src={photo} 
-                      alt={`图片 ${index + 1}`} 
-                      className="w-full h-24 object-cover rounded-lg"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => removePhoto(photo)}
-                      className="absolute top-1 right-1 p-1 bg-destructive text-destructive-foreground rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
           </div>
         </TabsContent>
       </Tabs>
 
       <div className="flex justify-end gap-2 pt-4 border-t">
         <Button type="button" variant="outline" onClick={onCancel}>
-          取消
+          Cancel
         </Button>
-        <Button type="submit">保存</Button>
+        <Button type="submit">Save</Button>
       </div>
     </form>
   );

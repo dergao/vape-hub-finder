@@ -46,8 +46,8 @@ export function Header() {
           <Button variant="ghost" size="icon" className="hidden md:flex">
             <Search className="h-5 w-5" />
           </Button>
-          <Button variant="hero" size="sm" className="hidden md:flex">
-            Add Your Store
+          <Button variant="hero" size="sm" className="hidden md:flex" asChild>
+            <Link to="/add-store">Add Your Store</Link>
           </Button>
           <Button 
             variant="ghost" 
@@ -85,8 +85,8 @@ export function Header() {
             >
               For Business
             </Link>
-            <Button variant="hero" size="sm" className="mt-2">
-              Add Your Store
+            <Button variant="hero" size="sm" className="mt-2" asChild>
+              <Link to="/add-store" onClick={() => setMobileMenuOpen(false)}>Add Your Store</Link>
             </Button>
           </nav>
         </div>
