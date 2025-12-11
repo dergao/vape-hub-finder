@@ -150,10 +150,23 @@ const StorePage = () => {
                         <Star className="w-4 h-4 mr-2" />
                         Review
                       </Button>
-                      <Button variant="outline" className="h-12">
-                        <ExternalLink className="w-4 h-4 mr-2" />
-                        Website
-                      </Button>
+                      {store.website ? (
+                        <Button variant="outline" className="h-12" asChild>
+                          <a 
+                            href={store.website}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <ExternalLink className="w-4 h-4 mr-2" />
+                            Website
+                          </a>
+                        </Button>
+                      ) : (
+                        <Button variant="outline" className="h-12" disabled>
+                          <ExternalLink className="w-4 h-4 mr-2" />
+                          Website
+                        </Button>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
