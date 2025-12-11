@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import CountryPage from "./pages/CountryPage";
 import CityPage from "./pages/CityPage";
 import StorePage from "./pages/StorePage";
+import AddStorePage from "./pages/AddStorePage";
 import NotFound from "./pages/NotFound";
 import { AdminLayout } from "./components/admin/AdminLayout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -15,6 +16,7 @@ import AdminStores from "./pages/admin/AdminStores";
 import AdminCities from "./pages/admin/AdminCities";
 import AdminReviews from "./pages/admin/AdminReviews";
 import AdminAds from "./pages/admin/AdminAds";
+import AdminSocialGroups from "./pages/admin/AdminSocialGroups";
 
 const queryClient = new QueryClient();
 
@@ -30,6 +32,7 @@ const App = () => (
             <Route path="/us" element={<CountryPage />} />
             <Route path="/us/:citySlug" element={<CityPage />} />
             <Route path="/us/:citySlug/:storeSlug" element={<StorePage />} />
+            <Route path="/add-store" element={<AddStorePage />} />
             
             {/* Admin Routes */}
             <Route path="/admin" element={<AdminLayout />}>
@@ -38,6 +41,7 @@ const App = () => (
               <Route path="cities" element={<AdminCities />} />
               <Route path="reviews" element={<AdminReviews />} />
               <Route path="ads" element={<AdminAds />} />
+              <Route path="social-groups" element={<AdminSocialGroups />} />
             </Route>
             
             <Route path="*" element={<NotFound />} />
