@@ -4,6 +4,7 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { SearchBar } from "@/components/search/SearchBar";
 import { CityCard } from "@/components/city/CityCard";
+import { WebSiteSchema } from "@/components/seo/WebSiteSchema";
 import { cities } from "@/data/mockData";
 
 const Index = () => {
@@ -21,6 +22,7 @@ const Index = () => {
         <meta property="og:description" content="The most comprehensive vape shop directory in the US. Find stores with live inventory and real reviews." />
         <link rel="canonical" href="https://vapefinder.com" />
       </Helmet>
+      <WebSiteSchema totalStores={totalStores} totalCities={cities.length} />
 
       <div className="min-h-screen flex flex-col">
         <Header />

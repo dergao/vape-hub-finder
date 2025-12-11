@@ -3,6 +3,7 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { CityCard } from "@/components/city/CityCard";
 import { SearchBar } from "@/components/search/SearchBar";
+import { CityListSchema } from "@/components/seo/CityListSchema";
 import { cities } from "@/data/mockData";
 
 const CountryPage = () => {
@@ -18,6 +19,7 @@ const CountryPage = () => {
         />
         <link rel="canonical" href="https://vapefinder.com/us" />
       </Helmet>
+      <CityListSchema cities={cities} totalStores={totalStores} />
 
       <div className="min-h-screen flex flex-col">
         <Header />

@@ -5,6 +5,7 @@ import { List, Map, Clock, X, Navigation } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { StoreCard } from "@/components/store/StoreCard";
+import { StoreListSchema } from "@/components/seo/StoreListSchema";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { getCityBySlug, getStoresByCity, brands } from "@/data/mockData";
@@ -111,6 +112,7 @@ const CityPage = () => {
         />
         <link rel="canonical" href={`https://vapefinder.com/us/${citySlug}`} />
       </Helmet>
+      <StoreListSchema city={city} stores={allStores} />
 
       <div className="min-h-screen flex flex-col">
         <Header />
