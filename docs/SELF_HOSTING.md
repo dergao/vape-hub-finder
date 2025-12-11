@@ -1,5 +1,14 @@
 # 本地部署指南 (Self-Hosting Guide)
 
+> 📖 **完整 Docker 部署指南:** 参见 [DOCKER_SELF_HOSTING.md](./DOCKER_SELF_HOSTING.md)
+
+## 部署方案对比
+
+| 方案 | 难度 | 月费用 | 适合场景 |
+|------|------|--------|---------|
+| **Vercel + Supabase Cloud** | ⭐ | 免费起步 | 快速上线、小流量 |
+| **Docker 自托管** | ⭐⭐⭐ | $10-40 | 完全控制、大流量 |
+
 ## 环境要求
 
 - **Node.js**: v18+ (推荐 v20 LTS)
