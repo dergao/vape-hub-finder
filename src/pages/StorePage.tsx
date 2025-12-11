@@ -7,6 +7,7 @@ import {
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { LocalBusinessSchema } from "@/components/seo/LocalBusinessSchema";
+import { BreadcrumbSchema } from "@/components/seo/BreadcrumbSchema";
 import { RatingBar } from "@/components/store/RatingBar";
 import { ReviewCard } from "@/components/store/ReviewCard";
 import { PhotoGallery } from "@/components/store/PhotoGallery";
@@ -58,6 +59,12 @@ const StorePage = () => {
         <link rel="canonical" href={`https://vapefinder.com/us/${citySlug}/${storeSlug}`} />
       </Helmet>
       <LocalBusinessSchema store={store} />
+      <BreadcrumbSchema items={[
+        { name: "Home", url: "https://vapefinder.com" },
+        { name: "United States", url: "https://vapefinder.com/us" },
+        { name: city.name, url: `https://vapefinder.com/us/${citySlug}` },
+        { name: store.name, url: `https://vapefinder.com/us/${citySlug}/${storeSlug}` }
+      ]} />
 
       <div className="min-h-screen flex flex-col">
         <Header />

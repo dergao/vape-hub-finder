@@ -4,6 +4,7 @@ import { Footer } from "@/components/layout/Footer";
 import { CityCard } from "@/components/city/CityCard";
 import { SearchBar } from "@/components/search/SearchBar";
 import { CityListSchema } from "@/components/seo/CityListSchema";
+import { BreadcrumbSchema } from "@/components/seo/BreadcrumbSchema";
 import { cities } from "@/data/mockData";
 
 const CountryPage = () => {
@@ -20,6 +21,10 @@ const CountryPage = () => {
         <link rel="canonical" href="https://vapefinder.com/us" />
       </Helmet>
       <CityListSchema cities={cities} totalStores={totalStores} />
+      <BreadcrumbSchema items={[
+        { name: "Home", url: "https://vapefinder.com" },
+        { name: "United States", url: "https://vapefinder.com/us" }
+      ]} />
 
       <div className="min-h-screen flex flex-col">
         <Header />
