@@ -49,6 +49,12 @@ docker compose up -d
 - `city-images` (Public)
 - `store-images` (Public)
 
+或使用 SQL 创建：
+```sql
+INSERT INTO storage.buckets (id, name, public) VALUES ('city-images', 'city-images', true);
+INSERT INTO storage.buckets (id, name, public) VALUES ('store-images', 'store-images', true);
+```
+
 ## 5. 启动开发服务器
 
 ```bash
@@ -94,3 +100,54 @@ server {
 确保在生产环境中设置：
 - `VITE_SUPABASE_URL`
 - `VITE_SUPABASE_PUBLISHABLE_KEY`
+
+---
+
+## 数据导入
+
+### 文件清单
+
+| 文件 | 说明 |
+|------|------|
+| `database_schema.sql` | 完整建表SQL + 演示数据 |
+| `bulk_import_complete.sql` | 所有表的批量导入SQL指南 |
+| `import_template_cities.csv` | 城市数据模板 |
+| `import_template_stores.csv` | 店铺数据模板 |
+| `import_template_brands.csv` | 品牌数据模板 |
+| `import_template_store_brands.csv` | 店铺-品牌关联模板 |
+| `import_template_products.csv` | 店铺产品模板 |
+| `import_template_reviews.csv` | 评论数据模板 |
+| `import_template_store_images.csv` | 店铺图库模板 |
+| `import_template_advertisements.csv` | 广告数据模板 |
+| `import_template_coupons.csv` | 优惠券数据模板 |
+| `import_template_social_groups.csv` | 社交群组模板 |
+
+### 导入顺序
+
+⚠️ **必须按以下顺序导入以满足外键约束：**
+
+1. 城市 (cities)
+2. 品牌 (brands)
+3. 店铺 (stores)
+4. 店铺-品牌关联 (store_brands)
+5. 店铺产品 (store_products)
+6. 店铺图库 (store_images)
+7. 评论 (reviews)
+8. 优惠券 (coupons)
+9. 广告 (advertisements)
+10. 社交群组 (social_groups)
+11. 运行统计更新SQL
+
+### 使用 psql 批量导入
+
+```bash
+# 连接数据库
+psql -h your-host -U postgres -d postgres
+
+# 执行导入SQL
+\i docs/bulk_import_complete.sql
+```
+
+### 使用 Node.js 脚本导入
+
+参考 `bulk_import_complete.sql` 中的 JavaScript 示例代码。
