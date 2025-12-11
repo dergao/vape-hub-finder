@@ -301,6 +301,19 @@ const StorePage = () => {
                         {store.city}, {store.state} {store.zipCode}
                       </span>
                     </div>
+                    {store.website && (
+                      <div className="flex items-center gap-3">
+                        <ExternalLink className="w-5 h-5 text-primary" />
+                        <a 
+                          href={store.website}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="hover:text-primary transition-colors text-sm"
+                        >
+                          {store.website.replace(/^https?:\/\//, '').replace(/\/$/, '')}
+                        </a>
+                      </div>
+                    )}
                     {store.facebook && (
                       <div className="flex items-center gap-3">
                         <Facebook className="w-5 h-5 text-blue-600" />
