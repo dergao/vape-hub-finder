@@ -75,6 +75,7 @@ CREATE TABLE IF NOT EXISTS public.store_brands (
 CREATE TABLE IF NOT EXISTS public.store_products (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     store_id UUID NOT NULL REFERENCES public.stores(id) ON DELETE CASCADE,
+    brand_id UUID REFERENCES public.brands(id) ON DELETE SET NULL,
     name VARCHAR(200) NOT NULL,
     url TEXT,
     created_at TIMESTAMPTZ DEFAULT NOW()
@@ -159,6 +160,7 @@ CREATE INDEX IF NOT EXISTS idx_stores_is_sponsored ON public.stores(is_sponsored
 CREATE INDEX IF NOT EXISTS idx_stores_rating ON public.stores(rating DESC);
 CREATE INDEX IF NOT EXISTS idx_stores_location ON public.stores(latitude, longitude);
 CREATE INDEX IF NOT EXISTS idx_reviews_store_id ON public.reviews(store_id);
+CREATE INDEX IF NOT EXISTS idx_store_products_brand ON public.store_products(brand_id);
 CREATE INDEX IF NOT EXISTS idx_advertisements_type ON public.advertisements(type);
 CREATE INDEX IF NOT EXISTS idx_advertisements_active ON public.advertisements(is_active);
 
@@ -291,13 +293,16 @@ INSERT INTO public.store_brands (store_id, brand_id)
 SELECT s.id, b.id FROM public.stores s, public.brands b
 WHERE s.slug = 'space-city-vapes' AND b.name IN ('SMOK', 'Vaporesso', 'GeekVape', 'Lost Vape', 'Uwell');
 
--- 店铺产品
-INSERT INTO public.store_products (store_id, name, url)
-SELECT id, 'Vaporesso XROS 3', 'https://www.vaporesso.com/xros-3' FROM public.stores WHERE slug = 'cloud-9-vape-lounge'
+-- 店铺产品（关联品牌）
+INSERT INTO public.store_products (store_id, brand_id, name, url)
+SELECT s.id, b.id, 'Vaporesso XROS 3', 'https://www.vaporesso.com/xros-3' 
+FROM public.stores s, public.brands b WHERE s.slug = 'cloud-9-vape-lounge' AND b.name = 'Vaporesso'
 UNION ALL
-SELECT id, 'SMOK Nord 5', NULL FROM public.stores WHERE slug = 'cloud-9-vape-lounge'
+SELECT s.id, b.id, 'SMOK Nord 5', NULL 
+FROM public.stores s, public.brands b WHERE s.slug = 'cloud-9-vape-lounge' AND b.name = 'SMOK'
 UNION ALL
-SELECT id, 'GeekVape Aegis Legend 2', 'https://www.geekvape.com/aegis-legend-2' FROM public.stores WHERE slug = 'cloud-9-vape-lounge';
+SELECT s.id, b.id, 'GeekVape Aegis Legend 2', 'https://www.geekvape.com/aegis-legend-2' 
+FROM public.stores s, public.brands b WHERE s.slug = 'cloud-9-vape-lounge' AND b.name = 'GeekVape';
 
 -- 评论数据
 INSERT INTO public.reviews (store_id, user_name, overall_rating, service_rating, inventory_rating, pricing_rating, content, is_approved, created_at)

@@ -1,6 +1,8 @@
-store_slug,city_slug,product_name,product_url
-"cloud-9-vape-lounge","los-angeles","Vaporesso XROS 3","https://www.vaporesso.com/xros-3"
-"cloud-9-vape-lounge","los-angeles","SMOK Nord 5",""
-"cloud-9-vape-lounge","los-angeles","GeekVape Aegis Legend 2","https://www.geekvape.com/aegis-legend-2"
-"manhattan-vape-co","new-york","JUUL Starter Kit","https://www.juul.com"
-"manhattan-vape-co","new-york","Voopoo Drag X Plus",""
+store_slug,city_slug,brand_name,product_name,product_url
+"cloud-9-vape-lounge","los-angeles","Vaporesso","Vaporesso XROS 3","https://www.vaporesso.com/xros-3"
+"cloud-9-vape-lounge","los-angeles","SMOK","SMOK Nord 5",""
+"cloud-9-vape-lounge","los-angeles","GeekVape","GeekVape Aegis Legend 2","https://www.geekvape.com/aegis-legend-2"
+"manhattan-vape-co","new-york","JUUL","JUUL Starter Kit","https://www.juul.com"
+"manhattan-vape-co","new-york","Voopoo","Voopoo Drag X Plus",""
+"space-city-vapes","houston","Vaporesso","Vaporesso Luxe X","https://www.vaporesso.com/luxe-x"
+"space-city-vapes","houston","SMOK","SMOK RPM 5 Pro",""

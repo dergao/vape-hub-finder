@@ -116,33 +116,36 @@ DROP TABLE temp_store_brands;
 */
 
 -- =====================================================
--- 4. 店铺产品导入 (Store Products)
+-- 4. 店铺产品导入 (Store Products) - 关联品牌
 -- =====================================================
 
 CREATE TEMP TABLE temp_products (
     store_slug TEXT,
     city_slug TEXT,
+    brand_name TEXT,
     product_name TEXT,
     product_url TEXT
 );
 
 -- psql: \copy temp_products FROM 'import_template_products.csv' WITH (FORMAT csv, HEADER true);
 
-INSERT INTO public.store_products (store_id, name, url)
-SELECT s.id, t.product_name, NULLIF(t.product_url, '')
+INSERT INTO public.store_products (store_id, brand_id, name, url)
+SELECT s.id, b.id, t.product_name, NULLIF(t.product_url, '')
 FROM temp_products t
-JOIN public.stores s ON s.slug = t.store_slug AND s.city_slug = t.city_slug;
+JOIN public.stores s ON s.slug = t.store_slug AND s.city_slug = t.city_slug
+LEFT JOIN public.brands b ON b.name = t.brand_name;
 
 DROP TABLE temp_products;
 
 /*
 字段说明:
-| 字段名      | 类型          | 必填 | 说明                   |
-|------------|---------------|------|------------------------|
-| store_slug | TEXT          | ✅   | 店铺slug               |
-| city_slug  | TEXT          | ✅   | 城市slug               |
-| product_name| VARCHAR(200) | ✅   | 产品名称               |
-| product_url| TEXT          | ❌   | 产品链接               |
+| 字段名      | 类型          | 必填 | 说明                          |
+|------------|---------------|------|-------------------------------|
+| store_slug | TEXT          | ✅   | 店铺slug                      |
+| city_slug  | TEXT          | ✅   | 城市slug                      |
+| brand_name | TEXT          | ❌   | 品牌名称（需在brands表中存在）  |
+| product_name| VARCHAR(200) | ✅   | 产品名称                      |
+| product_url| TEXT          | ❌   | 产品链接                      |
 */
 
 -- =====================================================
