@@ -48,33 +48,33 @@ interface Ad {
 const mockAds: Ad[] = [
   {
     id: "1",
-    name: "Juul 新品推广",
+    name: "Juul New Product Promo",
     type: "list_banner",
     imageUrl: "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=800",
     targetUrl: "https://juul.com",
     position: 1,
     isActive: true,
     startDate: "2024-01-01",
-    endDate: "2024-12-31",
+    endDate: "2025-12-31",
     impressions: 15420,
     clicks: 892,
   },
   {
     id: "2",
-    name: "SMOK 店铺详情广告",
+    name: "SMOK Detail Page Ad",
     type: "detail_banner",
     imageUrl: "https://images.unsplash.com/photo-1527529482837-4698179dc6ce?w=800",
     targetUrl: "https://smok.com",
     position: 1,
     isActive: true,
     startDate: "2024-02-01",
-    endDate: "2024-11-30",
+    endDate: "2025-06-30",
     impressions: 8930,
     clicks: 456,
   },
   {
     id: "3",
-    name: "Vaporesso 品牌广告",
+    name: "Vaporesso Brand Ad",
     type: "detail_banner",
     imageUrl: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800",
     targetUrl: "https://vaporesso.com",
@@ -84,6 +84,32 @@ const mockAds: Ad[] = [
     endDate: "2024-09-30",
     impressions: 5200,
     clicks: 234,
+  },
+  {
+    id: "4",
+    name: "Cloud 9 Vape Lounge - Sponsored",
+    type: "sponsored_store",
+    imageUrl: "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=800",
+    targetUrl: "/us/los-angeles/cloud-9-vape-lounge",
+    position: 1,
+    isActive: true,
+    startDate: "2024-12-01",
+    endDate: "2025-03-31",
+    impressions: 12500,
+    clicks: 1890,
+  },
+  {
+    id: "5",
+    name: "Vapor Paradise - Sponsored",
+    type: "sponsored_store",
+    imageUrl: "https://images.unsplash.com/photo-1527529482837-4698179dc6ce?w=800",
+    targetUrl: "/us/los-angeles/vapor-paradise",
+    position: 2,
+    isActive: true,
+    startDate: "2024-11-15",
+    endDate: "2025-02-15",
+    impressions: 9800,
+    clicks: 1450,
   },
 ];
 
@@ -100,23 +126,23 @@ export default function AdminAds() {
 
   const handleDelete = (id: string) => {
     setAdList(adList.filter(a => a.id !== id));
-    toast({ title: "广告已删除" });
+    toast({ title: "Ad deleted" });
   };
 
   const handleToggleActive = (id: string) => {
     setAdList(adList.map(a => 
       a.id === id ? { ...a, isActive: !a.isActive } : a
     ));
-    toast({ title: "广告状态已更新" });
+    toast({ title: "Ad status updated" });
   };
 
   const handleSave = (ad: Ad) => {
     if (editingAd) {
       setAdList(adList.map(a => a.id === ad.id ? ad : a));
-      toast({ title: "广告已更新" });
+      toast({ title: "Ad updated" });
     } else {
       setAdList([...adList, { ...ad, id: Date.now().toString() }]);
-      toast({ title: "广告已添加" });
+      toast({ title: "Ad added" });
     }
     setIsDialogOpen(false);
     setEditingAd(null);
@@ -124,9 +150,9 @@ export default function AdminAds() {
 
   const getTypeLabel = (type: Ad["type"]) => {
     switch (type) {
-      case "list_banner": return "列表页横幅";
-      case "detail_banner": return "详情页横幅";
-      case "sponsored_store": return "赞助商店铺";
+      case "list_banner": return "List Banner";
+      case "detail_banner": return "Detail Banner";
+      case "sponsored_store": return "Sponsored Store";
     }
   };
 
@@ -138,23 +164,34 @@ export default function AdminAds() {
     }
   };
 
+  const isExpired = (endDate: string) => {
+    return new Date(endDate) < new Date();
+  };
+
+  const isActive = (ad: Ad) => {
+    const now = new Date();
+    const start = new Date(ad.startDate);
+    const end = new Date(ad.endDate);
+    return ad.isActive && now >= start && now <= end;
+  };
+
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">广告管理</h1>
-          <p className="text-muted-foreground">管理店铺列表和详情页广告位</p>
+          <h1 className="text-2xl font-bold">Ads & Sponsors Management</h1>
+          <p className="text-muted-foreground">Manage banner ads and sponsored store placements</p>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
             <Button onClick={() => setEditingAd(null)}>
               <Plus className="w-4 h-4 mr-2" />
-              添加广告
+              Add Ad
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-lg">
             <DialogHeader>
-              <DialogTitle>{editingAd ? "编辑广告" : "添加广告"}</DialogTitle>
+              <DialogTitle>{editingAd ? "Edit Ad" : "Add Ad"}</DialogTitle>
             </DialogHeader>
             <AdForm 
               ad={editingAd} 
@@ -166,24 +203,30 @@ export default function AdminAds() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card className="p-4">
-          <div className="text-sm text-muted-foreground">总展示次数</div>
+          <div className="text-sm text-muted-foreground">Total Impressions</div>
           <div className="text-2xl font-bold">
             {adList.reduce((acc, ad) => acc + ad.impressions, 0).toLocaleString()}
           </div>
         </Card>
         <Card className="p-4">
-          <div className="text-sm text-muted-foreground">总点击次数</div>
+          <div className="text-sm text-muted-foreground">Total Clicks</div>
           <div className="text-2xl font-bold">
             {adList.reduce((acc, ad) => acc + ad.clicks, 0).toLocaleString()}
           </div>
         </Card>
         <Card className="p-4">
-          <div className="text-sm text-muted-foreground">平均点击率</div>
+          <div className="text-sm text-muted-foreground">Avg CTR</div>
           <div className="text-2xl font-bold">
             {(adList.reduce((acc, ad) => acc + ad.clicks, 0) / 
               adList.reduce((acc, ad) => acc + ad.impressions, 0) * 100).toFixed(2)}%
+          </div>
+        </Card>
+        <Card className="p-4">
+          <div className="text-sm text-muted-foreground">Active Ads</div>
+          <div className="text-2xl font-bold">
+            {adList.filter(ad => isActive(ad)).length} / {adList.length}
           </div>
         </Card>
       </div>
@@ -191,22 +234,23 @@ export default function AdminAds() {
       <Card className="p-4">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="mb-4">
-            <TabsTrigger value="all">全部</TabsTrigger>
-            <TabsTrigger value="list_banner">列表页横幅</TabsTrigger>
-            <TabsTrigger value="detail_banner">详情页横幅</TabsTrigger>
-            <TabsTrigger value="sponsored_store">赞助商店铺</TabsTrigger>
+            <TabsTrigger value="all">All</TabsTrigger>
+            <TabsTrigger value="list_banner">List Banners</TabsTrigger>
+            <TabsTrigger value="detail_banner">Detail Banners</TabsTrigger>
+            <TabsTrigger value="sponsored_store">Sponsored Stores</TabsTrigger>
           </TabsList>
 
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>预览</TableHead>
-                <TableHead>广告名称</TableHead>
-                <TableHead>类型</TableHead>
-                <TableHead>展示/点击</TableHead>
-                <TableHead>点击率</TableHead>
-                <TableHead>状态</TableHead>
-                <TableHead className="text-right">操作</TableHead>
+                <TableHead>Preview</TableHead>
+                <TableHead>Name</TableHead>
+                <TableHead>Type</TableHead>
+                <TableHead>Validity Period</TableHead>
+                <TableHead>Impressions/Clicks</TableHead>
+                <TableHead>CTR</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -238,8 +282,20 @@ export default function AdminAds() {
                   </TableCell>
                   <TableCell>
                     <div className="text-sm">
-                      <div>{ad.impressions.toLocaleString()} 展示</div>
-                      <div className="text-muted-foreground">{ad.clicks.toLocaleString()} 点击</div>
+                      <div>{ad.startDate} - {ad.endDate}</div>
+                      {isExpired(ad.endDate) ? (
+                        <Badge variant="destructive" className="mt-1 text-xs">Expired</Badge>
+                      ) : isActive(ad) ? (
+                        <Badge variant="open" className="mt-1 text-xs">Active</Badge>
+                      ) : (
+                        <Badge variant="secondary" className="mt-1 text-xs">Scheduled</Badge>
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="text-sm">
+                      <div>{ad.impressions.toLocaleString()} views</div>
+                      <div className="text-muted-foreground">{ad.clicks.toLocaleString()} clicks</div>
                     </div>
                   </TableCell>
                   <TableCell>
@@ -313,7 +369,7 @@ function AdForm({ ad, onSave, onCancel }: AdFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-2">
-        <Label htmlFor="name">广告名称</Label>
+        <Label htmlFor="name">Ad Name</Label>
         <Input
           id="name"
           value={formData.name}
@@ -323,7 +379,7 @@ function AdForm({ ad, onSave, onCancel }: AdFormProps) {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="type">广告类型</Label>
+        <Label htmlFor="type">Ad Type</Label>
         <Select
           value={formData.type}
           onValueChange={(value: Ad["type"]) => setFormData({ ...formData, type: value })}
@@ -332,15 +388,15 @@ function AdForm({ ad, onSave, onCancel }: AdFormProps) {
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="list_banner">列表页横幅</SelectItem>
-            <SelectItem value="detail_banner">详情页横幅</SelectItem>
-            <SelectItem value="sponsored_store">赞助商店铺</SelectItem>
+            <SelectItem value="list_banner">List Banner</SelectItem>
+            <SelectItem value="detail_banner">Detail Banner</SelectItem>
+            <SelectItem value="sponsored_store">Sponsored Store</SelectItem>
           </SelectContent>
         </Select>
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="imageUrl">图片URL</Label>
+        <Label htmlFor="imageUrl">Image URL</Label>
         <Input
           id="imageUrl"
           value={formData.imageUrl}
@@ -350,14 +406,14 @@ function AdForm({ ad, onSave, onCancel }: AdFormProps) {
         {formData.imageUrl && (
           <img 
             src={formData.imageUrl} 
-            alt="预览" 
+            alt="Preview" 
             className="w-full h-32 object-cover rounded mt-2"
           />
         )}
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="targetUrl">跳转链接</Label>
+        <Label htmlFor="targetUrl">Target URL</Label>
         <Input
           id="targetUrl"
           value={formData.targetUrl}
@@ -368,27 +424,29 @@ function AdForm({ ad, onSave, onCancel }: AdFormProps) {
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="startDate">开始日期</Label>
+          <Label htmlFor="startDate">Start Date</Label>
           <Input
             id="startDate"
             type="date"
             value={formData.startDate}
             onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
+            required
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="endDate">结束日期</Label>
+          <Label htmlFor="endDate">End Date</Label>
           <Input
             id="endDate"
             type="date"
             value={formData.endDate}
             onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
+            required
           />
         </div>
       </div>
 
       <div className="flex items-center justify-between">
-        <Label htmlFor="isActive">立即启用</Label>
+        <Label htmlFor="isActive">Enable Immediately</Label>
         <Switch
           id="isActive"
           checked={formData.isActive}
@@ -398,9 +456,9 @@ function AdForm({ ad, onSave, onCancel }: AdFormProps) {
 
       <div className="flex justify-end gap-2 pt-4">
         <Button type="button" variant="outline" onClick={onCancel}>
-          取消
+          Cancel
         </Button>
-        <Button type="submit">保存</Button>
+        <Button type="submit">Save</Button>
       </div>
     </form>
   );
