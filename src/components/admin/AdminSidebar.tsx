@@ -17,7 +17,7 @@ const menuItems = [
   { title: "Stores", url: "/admin/stores", icon: Store },
   { title: "Cities", url: "/admin/cities", icon: MapPin },
   { title: "Reviews", url: "/admin/reviews", icon: MessageSquare },
-  { title: "Ads", url: "/admin/ads", icon: Megaphone },
+  { title: "Ads & Sponsors", url: "/admin/ads", icon: Megaphone },
   { title: "Social Groups", url: "/admin/social-groups", icon: Users },
 ];
 
