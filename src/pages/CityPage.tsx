@@ -18,6 +18,9 @@ const CityPage = () => {
   const [openNowOnly, setOpenNowOnly] = useState(false);
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
 
+  // Randomly select one sponsored store to feature (consistent per page load)
+  const [randomSponsorIndex] = useState(() => Math.random());
+  
   const filteredStores = useMemo(() => {
     let result = [...allStores];
     
@@ -31,18 +34,27 @@ const CityPage = () => {
       );
     }
 
-    // Sort: sponsored first, then open stores, then by rating
-    result.sort((a, b) => {
-      // Sponsored always first
-      if (a.isSponsored && !b.isSponsored) return -1;
-      if (!a.isSponsored && b.isSponsored) return 1;
-      // Then open stores
+    // Separate sponsored and non-sponsored stores
+    const sponsoredStores = result.filter(s => s.isSponsored);
+    const nonSponsoredStores = result.filter(s => !s.isSponsored);
+    
+    // Sort non-sponsored: open stores first, then by rating
+    nonSponsoredStores.sort((a, b) => {
       if (a.isOpen !== b.isOpen) return a.isOpen ? -1 : 1;
       return b.rating - a.rating;
     });
 
-    return result;
-  }, [allStores, openNowOnly, selectedBrands]);
+    // Randomly select ONE sponsored store if multiple exist
+    if (sponsoredStores.length > 1) {
+      const selectedIndex = Math.floor(randomSponsorIndex * sponsoredStores.length);
+      const selectedSponsor = sponsoredStores[selectedIndex];
+      return [selectedSponsor, ...nonSponsoredStores];
+    } else if (sponsoredStores.length === 1) {
+      return [sponsoredStores[0], ...nonSponsoredStores];
+    }
+    
+    return nonSponsoredStores;
+  }, [allStores, openNowOnly, selectedBrands, randomSponsorIndex]);
 
   const toggleBrand = (brand: string) => {
     setSelectedBrands(prev => 
