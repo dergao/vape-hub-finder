@@ -6,6 +6,7 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { StoreCard } from "@/components/store/StoreCard";
 import { StoreListSchema } from "@/components/seo/StoreListSchema";
+import { BreadcrumbSchema } from "@/components/seo/BreadcrumbSchema";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { getCityBySlug, getStoresByCity, brands } from "@/data/mockData";
@@ -113,6 +114,11 @@ const CityPage = () => {
         <link rel="canonical" href={`https://vapefinder.com/us/${citySlug}`} />
       </Helmet>
       <StoreListSchema city={city} stores={allStores} />
+      <BreadcrumbSchema items={[
+        { name: "Home", url: "https://vapefinder.com" },
+        { name: "United States", url: "https://vapefinder.com/us" },
+        { name: city.name, url: `https://vapefinder.com/us/${citySlug}` }
+      ]} />
 
       <div className="min-h-screen flex flex-col">
         <Header />
