@@ -1,13 +1,15 @@
 import { useState, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { List, Map, Clock, X } from "lucide-react";
+import { List, Map, Clock, X, Navigation } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { StoreCard } from "@/components/store/StoreCard";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { getCityBySlug, getStoresByCity, brands } from "@/data/mockData";
+import { useGeolocation } from "@/hooks/use-geolocation";
+import { calculateDistance, formatDistance } from "@/lib/distance";
 
 const CityPage = () => {
   const { citySlug } = useParams<{ citySlug: string }>();
@@ -17,32 +19,49 @@ const CityPage = () => {
   const [viewMode, setViewMode] = useState<"list" | "map">("list");
   const [openNowOnly, setOpenNowOnly] = useState(false);
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
+  
+  const { latitude, longitude, loading: geoLoading } = useGeolocation();
+  const hasLocation = latitude !== null && longitude !== null;
 
   // Randomly select one sponsored store to feature (consistent per page load)
   const [randomSponsorIndex] = useState(() => Math.random());
   
+  // Calculate distances for each store
+  const storesWithDistance = useMemo(() => {
+    return allStores.map(store => {
+      const distance = hasLocation
+        ? calculateDistance(latitude!, longitude!, store.coordinates.lat, store.coordinates.lng)
+        : null;
+      return { store, distance };
+    });
+  }, [allStores, hasLocation, latitude, longitude]);
+
   const filteredStores = useMemo(() => {
-    let result = [...allStores];
+    let result = [...storesWithDistance];
     
     if (openNowOnly) {
-      result = result.filter(store => store.isOpen);
+      result = result.filter(item => item.store.isOpen);
     }
     
     if (selectedBrands.length > 0) {
-      result = result.filter(store => 
-        selectedBrands.some(brandName => store.brands.some(b => b.name === brandName))
+      result = result.filter(item => 
+        selectedBrands.some(brandName => item.store.brands.some(b => b.name === brandName))
       );
     }
 
     // Separate sponsored and non-sponsored stores
-    const sponsoredStores = result.filter(s => s.isSponsored);
-    const nonSponsoredStores = result.filter(s => !s.isSponsored);
+    const sponsoredStores = result.filter(s => s.store.isSponsored);
+    const nonSponsoredStores = result.filter(s => !s.store.isSponsored);
     
-    // Sort non-sponsored: open stores first, then by rating
-    nonSponsoredStores.sort((a, b) => {
-      if (a.isOpen !== b.isOpen) return a.isOpen ? -1 : 1;
-      return b.rating - a.rating;
-    });
+    // Sort non-sponsored: by distance if available, otherwise open stores first then by rating
+    if (hasLocation) {
+      nonSponsoredStores.sort((a, b) => (a.distance ?? Infinity) - (b.distance ?? Infinity));
+    } else {
+      nonSponsoredStores.sort((a, b) => {
+        if (a.store.isOpen !== b.store.isOpen) return a.store.isOpen ? -1 : 1;
+        return b.store.rating - a.store.rating;
+      });
+    }
 
     // Randomly select ONE sponsored store if multiple exist
     if (sponsoredStores.length > 1) {
@@ -54,7 +73,7 @@ const CityPage = () => {
     }
     
     return nonSponsoredStores;
-  }, [allStores, openNowOnly, selectedBrands, randomSponsorIndex]);
+  }, [storesWithDistance, openNowOnly, selectedBrands, randomSponsorIndex, hasLocation]);
 
   const toggleBrand = (brand: string) => {
     setSelectedBrands(prev => 
@@ -210,13 +229,17 @@ const CityPage = () => {
                     Showing {filteredStores.length} of {allStores.length} stores
                   </p>
                   <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {filteredStores.map((store, index) => (
+                    {filteredStores.map((item, index) => (
                       <div 
-                        key={store.id}
+                        key={item.store.id}
                         className="animate-slide-up"
                         style={{ animationDelay: `${index * 0.05}s` }}
                       >
-                        <StoreCard store={store} citySlug={citySlug || ""} />
+                        <StoreCard 
+                          store={item.store} 
+                          citySlug={citySlug || ""} 
+                          distance={item.distance !== null ? formatDistance(item.distance) : undefined}
+                        />
                       </div>
                     ))}
                   </div>
