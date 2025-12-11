@@ -2,6 +2,8 @@
 
 本指南详细说明如何在自己的服务器上完全自托管部署 VapeFinder 平台。
 
+> 📌 本指南同时支持 **Linux (Ubuntu)** 和 **Windows** 环境
+
 ## 系统要求
 
 | 组件 | 最低配置 | 推荐配置 |
@@ -9,7 +11,7 @@
 | CPU | 2核 | 4核 |
 | 内存 | 4GB | 8GB |
 | 硬盘 | 40GB SSD | 100GB SSD |
-| 系统 | Ubuntu 22.04 LTS | Ubuntu 22.04 LTS |
+| 系统 | Ubuntu 22.04 LTS / Windows 10+ | Ubuntu 22.04 LTS / Windows 11 |
 
 ## 架构概览
 
@@ -38,9 +40,11 @@
 └─────────────────┘ └─────────────────┘ └─────────────────┘
 ```
 
-## 第一部分：服务器初始化
+---
 
-### 1.1 安装 Docker 和 Docker Compose
+## 第一部分：安装 Docker
+
+### 🐧 Linux (Ubuntu)
 
 ```bash
 # 更新系统
@@ -68,7 +72,22 @@ docker --version
 docker compose version
 ```
 
-### 1.2 安装 Node.js (用于构建前端)
+### 🪟 Windows
+
+1. 下载并安装 [Docker Desktop for Windows](https://www.docker.com/products/docker-desktop/)
+2. 安装时勾选 "Use WSL 2 instead of Hyper-V"
+3. 安装完成后重启电脑
+4. 验证安装：
+```powershell
+docker --version
+docker compose version
+```
+
+---
+
+## 第二部分：安装 Node.js
+
+### 🐧 Linux
 
 ```bash
 # 安装 nvm
@@ -84,9 +103,50 @@ node --version
 npm --version
 ```
 
-## 第二部分：部署 Supabase 自托管
+### 🪟 Windows
 
-### 2.1 克隆 Supabase Docker 配置
+1. 下载并安装 [Node.js LTS](https://nodejs.org/) (推荐 v20)
+2. 或使用 nvm-windows：
+```powershell
+# 使用 winget 安装 nvm-windows
+winget install CoreyButler.NVMforWindows
+
+# 重启终端后安装 Node.js
+nvm install 20
+nvm use 20
+
+# 验证安装
+node --version
+npm --version
+```
+
+---
+
+## 第三部分：安装 Git
+
+### 🐧 Linux
+
+```bash
+sudo apt install -y git
+git --version
+```
+
+### 🪟 Windows
+
+1. 下载并安装 [Git for Windows](https://git-scm.com/download/win)
+2. 安装时选择默认选项
+3. 验证：
+```powershell
+git --version
+```
+
+---
+
+## 第四部分：部署 Supabase 自托管
+
+### 4.1 克隆 Supabase Docker 配置
+
+#### 🐧 Linux
 
 ```bash
 # 创建项目目录
@@ -101,12 +161,37 @@ cd supabase/docker
 cp .env.example .env
 ```
 
-### 2.2 配置 Supabase 环境变量
+#### 🪟 Windows (PowerShell 管理员模式)
 
-编辑 `.env` 文件：
+```powershell
+# 创建项目目录
+New-Item -ItemType Directory -Force -Path C:\vapefinder
+Set-Location C:\vapefinder
+
+# 克隆 Supabase
+git clone --depth 1 https://github.com/supabase/supabase
+Set-Location supabase\docker
+
+# 复制环境配置
+Copy-Item .env.example .env
+```
+
+### 4.2 配置 Supabase 环境变量
+
+#### 🐧 Linux
 
 ```bash
 nano .env
+```
+
+#### 🪟 Windows
+
+```powershell
+# 使用记事本编辑
+notepad .env
+
+# 或使用 VS Code
+code .env
 ```
 
 **重要配置项：**
@@ -116,7 +201,7 @@ nano .env
 # Secrets - 必须修改！
 ############
 
-# 生成安全密钥: openssl rand -base64 32
+# 生成安全密钥 (见下方生成方法)
 POSTGRES_PASSWORD=your-super-secret-postgres-password
 JWT_SECRET=your-super-secret-jwt-token-with-at-least-32-characters
 ANON_KEY=生成的-anon-key
@@ -149,24 +234,57 @@ STUDIO_PORT=3001
 SUPABASE_PUBLIC_URL=https://api.your-domain.com
 ```
 
-### 2.3 生成 JWT 密钥
+### 4.3 生成 JWT 密钥
 
-使用 Supabase 提供的工具生成密钥：
+#### 🐧 Linux
 
 ```bash
-# 安装 supabase CLI
-npm install -g supabase
-
-# 或使用在线工具生成: https://supabase.com/docs/guides/self-hosting#api-keys
-# 需要生成:
-# 1. JWT_SECRET (至少32字符)
-# 2. ANON_KEY (基于 JWT_SECRET 生成)
-# 3. SERVICE_ROLE_KEY (基于 JWT_SECRET 生成)
+# 生成 JWT Secret
+openssl rand -base64 32
 ```
 
-**在线生成工具：** https://supabase.com/docs/guides/self-hosting/docker#generate-api-keys
+#### 🪟 Windows (PowerShell)
 
-### 2.4 启动 Supabase
+```powershell
+# 方法1: 使用 PowerShell 生成随机字符串
+[Convert]::ToBase64String((1..32 | ForEach-Object { Get-Random -Maximum 256 }) -as [byte[]])
+
+# 方法2: 如果安装了 Git Bash，可以使用 openssl
+# 打开 Git Bash 运行:
+openssl rand -base64 32
+```
+
+**生成 ANON_KEY 和 SERVICE_ROLE_KEY：**
+
+访问 https://supabase.com/docs/guides/self-hosting/docker#generate-api-keys
+
+或使用 https://jwt.io 手动生成：
+
+**ANON_KEY Payload:**
+```json
+{
+  "role": "anon",
+  "iss": "supabase",
+  "iat": 1704067200,
+  "exp": 1861920000
+}
+```
+
+**SERVICE_ROLE_KEY Payload:**
+```json
+{
+  "role": "service_role",
+  "iss": "supabase",
+  "iat": 1704067200,
+  "exp": 1861920000
+}
+```
+
+使用你的 `JWT_SECRET` 作为签名密钥，算法选择 `HS256`。
+
+### 4.4 启动 Supabase
+
+#### 🐧 Linux
 
 ```bash
 cd /opt/vapefinder/supabase/docker
@@ -184,36 +302,103 @@ docker compose ps
 docker compose logs -f
 ```
 
-### 2.5 初始化数据库
+#### 🪟 Windows (PowerShell)
+
+```powershell
+Set-Location C:\vapefinder\supabase\docker
+
+# 拉取镜像
+docker compose pull
+
+# 启动所有服务
+docker compose up -d
+
+# 查看运行状态
+docker compose ps
+
+# 查看日志
+docker compose logs -f
+```
+
+### 4.5 初始化数据库
+
+#### 🐧 Linux
 
 ```bash
 # 进入 PostgreSQL 容器
 docker compose exec db psql -U postgres
 
-# 或从外部连接
-psql -h localhost -p 5432 -U postgres -d postgres
-
-# 执行建表 SQL
+# 在 psql 中执行建表 SQL
 \i /path/to/docs/database_schema.sql
 ```
 
-## 第三部分：部署前端应用
+#### 🪟 Windows
 
-### 3.1 克隆项目并构建
+```powershell
+# 进入 PostgreSQL 容器
+docker compose exec db psql -U postgres
+
+# 在 psql 中，复制 database_schema.sql 内容粘贴执行
+# 或者先将文件复制到容器中：
+docker cp C:\vapefinder\frontend\docs\database_schema.sql supabase-db-1:/tmp/
+docker compose exec db psql -U postgres -f /tmp/database_schema.sql
+```
+
+---
+
+## 第五部分：部署前端应用
+
+### 5.1 克隆项目
+
+#### 🐧 Linux
 
 ```bash
 cd /opt/vapefinder
 
-# 克隆你的项目
+# 公开仓库
 git clone https://github.com/your-username/vapefinder-app.git frontend
+
+# 私有仓库 (使用 Personal Access Token)
+git clone https://<用户名>:<PAT令牌>@github.com/<用户名>/<仓库名>.git frontend
+
 cd frontend
+```
+
+#### 🪟 Windows (PowerShell)
+
+```powershell
+Set-Location C:\vapefinder
+
+# 公开仓库
+git clone https://github.com/your-username/vapefinder-app.git frontend
+
+# 私有仓库方法1: 使用 Personal Access Token
+git clone https://<用户名>:<PAT令牌>@github.com/<用户名>/<仓库名>.git frontend
+
+# 私有仓库方法2: Windows Credential Manager 自动弹窗
+git clone https://github.com/<用户名>/<仓库名>.git frontend
+
+Set-Location frontend
+```
+
+**获取 GitHub Personal Access Token (PAT)：**
+1. GitHub → Settings → Developer settings → Personal access tokens → Tokens (classic)
+2. Generate new token → 勾选 `repo` 权限
+3. 复制生成的 token
+
+### 5.2 安装依赖并构建
+
+#### 🐧 Linux
+
+```bash
+cd /opt/vapefinder/frontend
 
 # 安装依赖
 npm install
 
 # 创建环境变量文件
 cat > .env.production << EOF
-VITE_SUPABASE_URL=https://api.your-domain.com
+VITE_SUPABASE_URL=http://localhost:8000
 VITE_SUPABASE_PUBLISHABLE_KEY=your-anon-key
 VITE_SUPABASE_PROJECT_ID=self-hosted
 EOF
@@ -222,12 +407,33 @@ EOF
 npm run build
 ```
 
-### 3.2 创建前端 Docker 镜像
+#### 🪟 Windows (PowerShell)
+
+```powershell
+Set-Location C:\vapefinder\frontend
+
+# 安装依赖
+npm install
+
+# 创建环境变量文件
+@"
+VITE_SUPABASE_URL=http://localhost:8000
+VITE_SUPABASE_PUBLISHABLE_KEY=your-anon-key
+VITE_SUPABASE_PROJECT_ID=self-hosted
+"@ | Out-File -FilePath .env.production -Encoding UTF8
+
+# 构建生产版本
+npm run build
+```
+
+### 5.3 创建前端 Docker 镜像
 
 创建 `Dockerfile`：
 
-```dockerfile
-# /opt/vapefinder/frontend/Dockerfile
+#### 🐧 Linux
+
+```bash
+cat > Dockerfile << 'EOF'
 FROM nginx:alpine
 
 # 复制构建产物
@@ -240,12 +446,34 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 EXPOSE 80
 
 CMD ["nginx", "-g", "daemon off;"]
+EOF
+```
+
+#### 🪟 Windows (PowerShell)
+
+```powershell
+@"
+FROM nginx:alpine
+
+# 复制构建产物
+COPY dist/ /usr/share/nginx/html/
+
+# 复制 Nginx 配置
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# 暴露端口
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]
+"@ | Out-File -FilePath Dockerfile -Encoding UTF8 -NoNewline
 ```
 
 创建 `nginx.conf`：
 
-```nginx
-# /opt/vapefinder/frontend/nginx.conf
+#### 🐧 Linux
+
+```bash
+cat > nginx.conf << 'EOF'
 server {
     listen 80;
     server_name localhost;
@@ -277,9 +505,50 @@ server {
         add_header Content-Type text/plain;
     }
 }
+EOF
 ```
 
-构建并运行：
+#### 🪟 Windows (PowerShell)
+
+```powershell
+@"
+server {
+    listen 80;
+    server_name localhost;
+    root /usr/share/nginx/html;
+    index index.html;
+
+    # Gzip 压缩
+    gzip on;
+    gzip_vary on;
+    gzip_min_length 1024;
+    gzip_proxied any;
+    gzip_types text/plain text/css text/xml text/javascript application/javascript application/json application/xml;
+    gzip_comp_level 6;
+
+    # 静态资源缓存
+    location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+    }
+
+    # SPA 路由支持
+    location / {
+        try_files `$uri `$uri/ /index.html;
+    }
+
+    # 健康检查
+    location /health {
+        return 200 'OK';
+        add_header Content-Type text/plain;
+    }
+}
+"@ | Out-File -FilePath nginx.conf -Encoding UTF8 -NoNewline
+```
+
+### 5.4 构建并运行
+
+#### 🐧 Linux
 
 ```bash
 cd /opt/vapefinder/frontend
@@ -295,15 +564,48 @@ docker run -d \
   vapefinder-frontend:latest
 ```
 
-## 第四部分：配置 Nginx 反向代理
+#### 🪟 Windows (PowerShell)
 
-### 4.1 安装 Nginx 和 Certbot
+```powershell
+Set-Location C:\vapefinder\frontend
+
+# 构建镜像
+docker build -t vapefinder-frontend:latest .
+
+# 运行容器
+docker run -d `
+  --name vapefinder-frontend `
+  --restart unless-stopped `
+  -p 3000:80 `
+  vapefinder-frontend:latest
+```
+
+---
+
+## 第六部分：访问应用
+
+部署完成后：
+
+| 服务 | 地址 |
+|------|------|
+| 前端应用 | http://localhost:3000 |
+| Supabase API | http://localhost:8000 |
+| Supabase Studio | http://localhost:3001 |
+| PostgreSQL | localhost:5432 |
+
+---
+
+## 第七部分：配置 Nginx 反向代理 (Linux 生产环境)
+
+> ⚠️ 以下内容仅适用于 Linux 生产服务器部署
+
+### 7.1 安装 Nginx 和 Certbot
 
 ```bash
 sudo apt install -y nginx certbot python3-certbot-nginx
 ```
 
-### 4.2 创建 Nginx 配置
+### 7.2 创建 Nginx 配置
 
 ```bash
 sudo nano /etc/nginx/sites-available/vapefinder
@@ -382,7 +684,7 @@ server {
 }
 ```
 
-### 4.3 启用站点并获取 SSL 证书
+### 7.3 启用站点并获取 SSL 证书
 
 ```bash
 # 启用站点
@@ -401,44 +703,13 @@ sudo systemctl restart nginx
 sudo certbot renew --dry-run
 ```
 
-## 第五部分：Docker Compose 一键部署
+---
 
-创建统一的 `docker-compose.yml`：
+## 第八部分：维护与监控
 
-```yaml
-# /opt/vapefinder/docker-compose.yml
-version: '3.8'
+### 8.1 常用命令
 
-services:
-  # 前端应用
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    container_name: vapefinder-frontend
-    restart: unless-stopped
-    ports:
-      - "3000:80"
-    depends_on:
-      - kong
-    networks:
-      - vapefinder-network
-
-  # 以下为 Supabase 服务 (从 supabase/docker 引入)
-  # ... 参考 supabase/docker/docker-compose.yml
-
-networks:
-  vapefinder-network:
-    driver: bridge
-
-volumes:
-  postgres-data:
-  storage-data:
-```
-
-## 第六部分：维护与监控
-
-### 6.1 常用命令
+#### 🐧 Linux
 
 ```bash
 # 查看所有容器状态
@@ -463,7 +734,35 @@ docker rm vapefinder-frontend
 docker run -d --name vapefinder-frontend --restart unless-stopped -p 3000:80 vapefinder-frontend:latest
 ```
 
-### 6.2 数据库备份
+#### 🪟 Windows (PowerShell)
+
+```powershell
+# 查看所有容器状态
+docker ps -a
+
+# 查看日志
+docker logs -f vapefinder-frontend
+Set-Location C:\vapefinder\supabase\docker
+docker compose logs -f
+
+# 重启服务
+docker restart vapefinder-frontend
+docker compose restart
+
+# 更新前端
+Set-Location C:\vapefinder\frontend
+git pull
+npm install
+npm run build
+docker build -t vapefinder-frontend:latest .
+docker stop vapefinder-frontend
+docker rm vapefinder-frontend
+docker run -d --name vapefinder-frontend --restart unless-stopped -p 3000:80 vapefinder-frontend:latest
+```
+
+### 8.2 数据库备份
+
+#### 🐧 Linux
 
 ```bash
 # 创建备份脚本
@@ -491,18 +790,50 @@ chmod +x /opt/vapefinder/backup.sh
 (crontab -l 2>/dev/null; echo "0 2 * * * /opt/vapefinder/backup.sh") | crontab -
 ```
 
-### 6.3 监控 (可选)
+#### 🪟 Windows (PowerShell)
 
-```bash
-# 安装 ctop 监控容器
-sudo wget https://github.com/bcicen/ctop/releases/download/v0.7.7/ctop-0.7.7-linux-amd64 -O /usr/local/bin/ctop
-sudo chmod +x /usr/local/bin/ctop
+```powershell
+# 创建备份目录
+New-Item -ItemType Directory -Force -Path C:\vapefinder\backups
 
-# 运行监控
-ctop
+# 手动备份命令
+$date = Get-Date -Format "yyyyMMdd_HHmmss"
+Set-Location C:\vapefinder\supabase\docker
+docker compose exec -T db pg_dump -U postgres postgres | Out-File -FilePath "C:\vapefinder\backups\db_$date.sql" -Encoding UTF8
+
+# 创建定时任务 (使用 Task Scheduler)
+# 1. 打开 Task Scheduler (任务计划程序)
+# 2. 创建基本任务 → 每日触发
+# 3. 操作: 启动程序 → powershell.exe
+# 4. 参数: -File "C:\vapefinder\backup.ps1"
 ```
 
-## 第七部分：故障排查
+创建备份脚本 `C:\vapefinder\backup.ps1`:
+
+```powershell
+$date = Get-Date -Format "yyyyMMdd_HHmmss"
+$backupDir = "C:\vapefinder\backups"
+
+# 确保目录存在
+New-Item -ItemType Directory -Force -Path $backupDir | Out-Null
+
+# 备份数据库
+Set-Location C:\vapefinder\supabase\docker
+docker compose exec -T db pg_dump -U postgres postgres | Out-File -FilePath "$backupDir\db_$date.sql" -Encoding UTF8
+
+# 压缩 (需要安装 7-Zip 或使用 Compress-Archive)
+Compress-Archive -Path "$backupDir\db_$date.sql" -DestinationPath "$backupDir\db_$date.zip"
+Remove-Item "$backupDir\db_$date.sql"
+
+# 删除7天前的备份
+Get-ChildItem $backupDir -Filter "*.zip" | Where-Object { $_.LastWriteTime -lt (Get-Date).AddDays(-7) } | Remove-Item
+
+Write-Host "Backup completed: db_$date.zip"
+```
+
+---
+
+## 第九部分：故障排查
 
 ### 常见问题
 
@@ -516,6 +847,8 @@ ctop
 
 ### 查看服务状态
 
+#### 🐧 Linux
+
 ```bash
 # 检查所有服务
 docker compose -f /opt/vapefinder/supabase/docker/docker-compose.yml ps
@@ -526,6 +859,22 @@ sudo netstat -tlnp | grep -E '3000|8000|5432'
 # 检查 Nginx 状态
 sudo systemctl status nginx
 ```
+
+#### 🪟 Windows (PowerShell)
+
+```powershell
+# 检查所有服务
+Set-Location C:\vapefinder\supabase\docker
+docker compose ps
+
+# 检查端口占用
+netstat -ano | findstr ":3000 :8000 :5432"
+
+# 或使用 PowerShell
+Get-NetTCPConnection | Where-Object {$_.LocalPort -in 3000,8000,5432}
+```
+
+---
 
 ## 费用估算
 

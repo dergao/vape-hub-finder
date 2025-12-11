@@ -1,6 +1,8 @@
 # 本地部署指南 (Self-Hosting Guide)
 
 > 📖 **完整 Docker 部署指南:** 参见 [DOCKER_SELF_HOSTING.md](./DOCKER_SELF_HOSTING.md)
+> 
+> 📌 本指南同时支持 **Linux** 和 **Windows** 环境
 
 ## 部署方案对比
 
@@ -15,23 +17,72 @@
 - **包管理器**: npm / yarn / pnpm / bun
 - **数据库**: PostgreSQL 15+ (或 Supabase 自托管/云服务)
 
+---
+
 ## 1. 克隆项目
 
+### 🐧 Linux / macOS
+
 ```bash
+# 公开仓库
 git clone <your-github-repo-url>
+cd <project-folder>
+npm install
+
+# 私有仓库 (使用 Personal Access Token)
+git clone https://<用户名>:<PAT令牌>@github.com/<用户名>/<仓库名>.git
 cd <project-folder>
 npm install
 ```
 
+### 🪟 Windows (PowerShell)
+
+```powershell
+# 公开仓库
+git clone <your-github-repo-url>
+Set-Location <project-folder>
+npm install
+
+# 私有仓库方法1: 使用 Personal Access Token
+git clone https://<用户名>:<PAT令牌>@github.com/<用户名>/<仓库名>.git
+Set-Location <project-folder>
+npm install
+
+# 私有仓库方法2: Windows Credential Manager 自动弹窗
+git clone https://github.com/<用户名>/<仓库名>.git
+# Windows 会自动弹出登录窗口
+```
+
+**获取 GitHub Personal Access Token (PAT)：**
+1. GitHub → Settings → Developer settings → Personal access tokens → Tokens (classic)
+2. Generate new token → 勾选 `repo` 权限
+3. 复制生成的 token
+
+---
+
 ## 2. 环境变量配置
 
-创建 `.env` 文件：
+### 🐧 Linux / macOS
 
-```env
+```bash
+cat > .env << EOF
 VITE_SUPABASE_URL=https://your-supabase-project.supabase.co
 VITE_SUPABASE_PUBLISHABLE_KEY=your-anon-key
 VITE_SUPABASE_PROJECT_ID=your-project-id
+EOF
 ```
+
+### 🪟 Windows (PowerShell)
+
+```powershell
+@"
+VITE_SUPABASE_URL=https://your-supabase-project.supabase.co
+VITE_SUPABASE_PUBLISHABLE_KEY=your-anon-key
+VITE_SUPABASE_PROJECT_ID=your-project-id
+"@ | Out-File -FilePath .env -Encoding UTF8
+```
+
+或手动创建 `.env` 文件并添加以上内容。
 
 ### Supabase 选项
 
@@ -40,17 +91,26 @@ VITE_SUPABASE_PROJECT_ID=your-project-id
 2. 在 Project Settings > API 获取 URL 和 anon key
 
 **选项 B: Supabase 自托管**
-```bash
-# 使用 Docker 部署 Supabase
-git clone https://github.com/supabase/supabase
-cd supabase/docker
-cp .env.example .env
-docker compose up -d
-```
+
+详见 [DOCKER_SELF_HOSTING.md](./DOCKER_SELF_HOSTING.md)
+
+---
 
 ## 3. 数据库初始化
 
 在 Supabase SQL Editor 或 psql 中执行 `docs/database_schema.sql` 文件。
+
+### 🪟 Windows psql 连接示例
+
+```powershell
+# 如果安装了 PostgreSQL
+psql -h your-host -U postgres -d postgres -f docs/database_schema.sql
+
+# 或进入交互模式后粘贴 SQL
+psql -h your-host -U postgres -d postgres
+```
+
+---
 
 ## 4. 存储桶配置
 
@@ -64,6 +124,8 @@ INSERT INTO storage.buckets (id, name, public) VALUES ('city-images', 'city-imag
 INSERT INTO storage.buckets (id, name, public) VALUES ('store-images', 'store-images', true);
 ```
 
+---
+
 ## 5. 启动开发服务器
 
 ```bash
@@ -71,6 +133,8 @@ npm run dev
 ```
 
 访问 http://localhost:5173
+
+---
 
 ## 6. 生产部署
 
@@ -103,6 +167,8 @@ server {
     }
 }
 ```
+
+---
 
 ## 7. 环境变量（生产）
 
@@ -149,12 +215,26 @@ server {
 
 ### 使用 psql 批量导入
 
+#### 🐧 Linux / macOS
+
 ```bash
 # 连接数据库
 psql -h your-host -U postgres -d postgres
 
 # 执行导入SQL
 \i docs/bulk_import_complete.sql
+```
+
+#### 🪟 Windows
+
+```powershell
+# 连接数据库
+psql -h your-host -U postgres -d postgres
+
+# 在 psql 中执行 (注意使用正斜杠)
+\i C:/path/to/docs/bulk_import_complete.sql
+
+# 或复制文件内容直接粘贴执行
 ```
 
 ### 使用 Node.js 脚本导入
