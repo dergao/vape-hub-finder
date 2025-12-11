@@ -205,6 +205,7 @@ function StoreForm({ store, onSave, onCancel }: StoreFormProps) {
     state: "",
     zipCode: "",
     phone: "",
+    website: "",
     facebook: "",
     rating: 0,
     reviewCount: 0,
@@ -418,6 +419,15 @@ function StoreForm({ store, onSave, onCancel }: StoreFormProps) {
           </div>
 
           <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="website">Website</Label>
+              <Input
+                id="website"
+                value={formData.website || ""}
+                onChange={(e) => setFormData({ ...formData, website: e.target.value })}
+                placeholder="https://example.com"
+              />
+            </div>
             <div className="space-y-2">
               <Label htmlFor="facebook">Facebook Page</Label>
               <Input
