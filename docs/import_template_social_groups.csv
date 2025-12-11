@@ -1,0 +1,5 @@
+name,platform,url,member_count,description,is_active
+"Vape Deals Daily","whatsapp","https://chat.whatsapp.com/example1",2500,"Daily vape deals and giveaways!",true
+"Cloud Chasers Community","telegram","https://t.me/cloudchasers",5200,"Join the largest vape community on Telegram",true
+"Vape Nation USA","facebook","https://facebook.com/groups/vapenationusa",15000,"Connect with vapers across the USA",true
+"LA Vapers Group","whatsapp","https://chat.whatsapp.com/example2",800,"Los Angeles local vaper community",true

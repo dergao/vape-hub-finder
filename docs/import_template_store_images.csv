@@ -1,0 +1,6 @@
+store_slug,city_slug,image_url,sort_order
+"cloud-9-vape-lounge","los-angeles","https://example.com/store1-photo1.jpg",1
+"cloud-9-vape-lounge","los-angeles","https://example.com/store1-photo2.jpg",2
+"cloud-9-vape-lounge","los-angeles","https://example.com/store1-photo3.jpg",3
+"manhattan-vape-co","new-york","https://example.com/store2-photo1.jpg",1
+"manhattan-vape-co","new-york","https://example.com/store2-photo2.jpg",2

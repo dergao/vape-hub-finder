@@ -1,0 +1,5 @@
+store_slug,city_slug,code,description,discount_type,discount_value,min_purchase,expires_at,is_active
+"cloud-9-vape-lounge","los-angeles","CLOUD10","10% off your first purchase","percentage",10,20.00,"2024-12-31",true
+"cloud-9-vape-lounge","los-angeles","SAVE5","$5 off orders over $30","fixed",5,30.00,"2024-06-30",true
+"manhattan-vape-co","new-york","WELCOME5","$5 off for new customers","fixed",5,25.00,"2024-12-31",true
+"space-city-vapes","houston","HOUSTON15","15% off all SMOK products","percentage",15,50.00,"2024-03-31",true
