@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
@@ -49,7 +50,7 @@ export default function AddStorePage() {
                 Your store submission has been received. Our team will review your information and get back to you within 2-3 business days.
               </p>
               <Button asChild>
-                <a href="/">Return to Home</a>
+                <Link to="/">Return to Home</Link>
               </Button>
             </Card>
           </main>

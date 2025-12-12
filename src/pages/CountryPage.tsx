@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
@@ -34,7 +35,7 @@ const CountryPage = () => {
           <section className="py-8 md:py-12 border-b border-border">
             <div className="container">
               <nav className="text-sm text-muted-foreground mb-4">
-                <a href="/" className="hover:text-primary">Home</a>
+                <Link to="/" className="hover:text-primary">Home</Link>
                 <span className="mx-2">/</span>
                 <span className="text-foreground">United States</span>
               </nav>
